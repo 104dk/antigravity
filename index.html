@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumière Salon | Elegância e Estilo</title>
+    <meta name="description"
+        content="Experimente o luxo e o cuidado que você merece no Lumière Salon. Cortes, cores e tratamentos exclusivos.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header id="main-header">
+        <div class="container">
+            <a href="#" class="logo">Lumière Salon</a>
+            <nav>
+                <button id="mobile-menu-btn" aria-label="Abrir menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul id="nav-list">
+                    <li><a href="#hero">Início</a></li>
+                    <li><a href="#services">Serviços</a></li>
+                    <li><a href="#about">Sobre</a></li>
+                    <li><a href="#contact">Contato</a></li>
+                    <li><a href="#booking" class="btn-primary">Agendar</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero">
+            <div class="hero-bg">
+                <img src="https://placehold.co/1920x1080/1a1a1a/d4af37?text=Lumière+Salon+Interior"
+                    alt="Interior luxuoso do Lumière Salon">
+                <div class="overlay"></div>
+            </div>
+            <div class="container hero-content">
+                <h1>Revele Sua <span class="text-gold">Verdadeira Beleza</span></h1>
+                <p>Onde a elegância encontra a arte. Transforme seu visual com nossos especialistas premium.</p>
+                <a href="#booking" class="btn-primary">Reserve Seu Horário</a>
+            </div>
+            <div class="scroll-down">
+                <span>Explore</span>
+                <div class="arrow"></div>
+            </div>
+        </section>
+
+        <section id="services">
+            <div class="container">
+                <h2 class="section-title">Nossos <span class="text-gold">Serviços</span></h2>
+                <div class="services-grid" id="services-container">
+                    <!-- Services will be loaded dynamically via JS -->
+                    <p>Carregando serviços...</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="about">
+            <div class="container">
+                <div class="about-content">
+                    <div class="about-text">
+                        <h2 class="section-title">Sobre o <span class="text-gold">Lumière</span></h2>
+                        <p>No Lumière Salon, acreditamos que a beleza é uma forma de arte. Nossa equipe de especialistas
+                            dedicados combina técnicas modernas com um atendimento personalizado para criar uma
+                            experiência única de luxo e bem-estar.</p>
+                        <p>Localizado no coração da cidade, nosso espaço foi desenhado para ser seu refúgio de
+                            tranquilidade e renovação.</p>
+                    </div>
+                    <div class="about-image">
+                        <!-- Placeholder for about image if needed, using CSS styling for now -->
+                        <div class="image-box"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="booking">
+            <div class="container">
+                <div class="booking-wrapper">
+                    <h2 class="section-title">Agende sua <span class="text-gold">Visita</span></h2>
+                    <p>Preencha o formulário e entraremos em contato para confirmar seu horário.</p>
+
+                    <form id="booking-form">
+                        <div class="form-group">
+                            <label for="name">Nome Completo</label>
+                            <input type="text" id="name" name="name" required placeholder="Seu nome">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Telefone</label>
+                            <input type="tel" id="phone" name="phone" required placeholder="(11) 99999-9999"
+                                maxlength="15">
+                        </div>
+                        <div class="form-group">
+                            <label for="service">Serviço Desejado</label>
+                            <select id="service" name="service" required>
+                                <option value="" disabled selected>Selecione um serviço</option>
+                                <option value="corte">Corte & Estilo</option>
+                                <option value="coloracao">Coloração</option>
+                                <option value="manicure">Manicure & Pedicure</option>
+                                <option value="tratamento">Tratamento Capilar</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="date">Data Preferencial</label>
+                            <input type="date" id="date" name="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Horário Disponível</label>
+                            <div id="time-slots" class="time-slots-grid">
+                                <!-- Slots will be populated here via JS -->
+                                <p class="text-muted">Selecione uma data para ver os horários.</p>
+                            </div>
+                            <input type="hidden" id="selected-time" name="time" required>
+                        </div>
+                        <button type="submit" class="btn-primary btn-block">Solicitar Agendamento</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="contact">
+        <div class="container footer-content">
+            <div class="footer-info">
+                <h3>Lumière</h3>
+                <p>Rua 43 Quadra 149</p>
+                <p>Luziânia - GO</p>
+                <p>Telefone: (61) 982853421</p>
+                <p>Email: teste.teste@gmail.com</p>
+            </div>
+            <div class="footer-social">
+                <a href="#" aria-label="Instagram">Instagram</a>
+                <a href="#" aria-label="Facebook">Facebook</a>
+                <a href="https://wa.me/5561993602116?text=Olá, gostaria de saber mais sobre o Lumière Salon."
+                    target="_blank" aria-label="WhatsApp">WhatsApp</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Lumière Salon. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumière Admin</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+    <style>
+        body {
+            padding-top: 80px;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .login-box {
+            max-width: 400px;
+            margin: 50px auto;
+            background: var(--bg-card);
+            padding: 40px;
+            border: 1px solid var(--gold);
+            border-radius: 4px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .tab-btn.active {
+            color: var(--gold);
+            border-bottom: 2px solid var(--gold);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: var(--bg-card);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        .data-table th {
+            color: var(--gold);
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #333;
+            color: #fff;
+        }
+
+        .status-completed {
+            background: #1b5e20;
+            color: #fff;
+        }
+
+        .status-cancelled {
+            background: #b71c1c;
+            color: #fff;
+        }
+
+        .action-btn {
+            background: none;
+            border: 1px solid #555;
+            color: #fff;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .action-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            padding: 30px;
+            width: 500px;
+            max-width: 90%;
+            border: 1px solid var(--gold);
+            position: relative;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 1.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border: 1px solid #333;
+            border-radius: 4px;
+        }
+
+        .stat-card h3 {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            color: var(--gold);
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: end;
+        }
+
+        .filter-row input {
+            flex: 1;
+        }
+
+        .client-card {
+            background: var(--bg-card);
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid #333;
+            cursor: pointer;
+        }
+
+        .client-card:hover {
+            border-color: var(--gold);
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid #555;
+            padding: 10px;
+            font-family: inherit;
+        }
+
+        /* FullCalendar Theme Overrides */
+        .fc {
+            color: var(--text-primary);
+            background: var(--bg-card);
+            padding: 15px;
+            border: 1px solid var(--gold);
+        }
+
+        .fc-toolbar-title {
+            color: var(--gold);
+            font-family: 'Playfair Display', serif;
+        }
+
+        .fc-col-header-cell-cushion,
+        .fc-daygrid-day-number,
+        .fc-timegrid-slot-label-cushion {
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .fc-theme-standard td,
+        .fc-theme-standard th {
+            border-color: #333;
+        }
+
+        .fc-button-primary {
+            background-color: transparent !important;
+            border-color: var(--gold) !important;
+            color: var(--gold) !important;
+        }
+
+        .fc-button-primary:hover {
+            background-color: var(--gold) !important;
+            color: #000 !important;
+        }
+
+        .fc-button-active {
+            background-color: var(--gold) !important;
+            color: #000 !important;
+        }
+
+        .fc-event {
+            cursor: pointer;
+            border: none;
+            padding: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <header id="main-header">
+        <div class="container">
+            <a href="/" class="logo">Lumière Admin</a>
+            <nav id="admin-nav" class="hidden">
+                <a href="/" target="_blank" class="btn-primary" style="padding: 5px 15px; font-size: 0.8rem; text-decoration: none; margin-right: 10px;">Ver Site</a>
+                <button id="logout-btn" class="btn-primary" style="padding: 5px 15px; font-size: 0.8rem;">Sair</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="admin-container">
+        <!-- Login Section -->
+        <section id="login-section">
+            <div class="login-box">
+                <h2 class="section-title" style="font-size: 2rem;">Login</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label>Usuário</label>
+                        <input type="text" id="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Senha</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <button type="submit" class="btn-primary btn-block">Entrar</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="hidden">
+            <div class="dashboard-header">
+                <h2>Painel de Controle</h2>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+                <button class="tab-btn" data-tab="appointments">Agendamentos</button>
+                <button class="tab-btn" data-tab="reports">Relatórios</button>
+                <button class="tab-btn" data-tab="clients">Clientes</button>
+                <button class="tab-btn" data-tab="messages">Mensagens</button>
+                <button class="tab-btn" data-tab="services">Serviços</button>
+                <button class="tab-btn" data-tab="users">Usuários</button>
+                <button class="tab-btn" data-tab="backups">Backups</button>
+                <button class="tab-btn" data-tab="logs">Logs</button>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div id="tab-dashboard" class="tab-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Hoje</h3>
+                        <div class="value" id="stat-today">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Esta Semana</h3>
+                        <div class="value" id="stat-week">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Este Mês</h3>
+                        <div class="value" id="stat-month">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Receita Total</h3>
+                        <div class="value" id="stat-revenue">R$ 0</div>
+                    </div>
+                </div>
+                <h3>Serviços Mais Procurados</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Serviço</th>
+                            <th>Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody id="top-services-list"></tbody>
+                </table>
+            </div>
+
+            <!-- Appointments Tab -->
+            <div id="tab-appointments" class="tab-content hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div>
+                        <button id="refresh-appointments" class="action-btn">Atualizar Lista</button>
+                    </div>
+                    <div class="view-toggles" style="display: flex; gap: 10px; align-items: center;">
+                        <select id="filter-service" class="action-btn" style="background: var(--bg-card);">
+                            <option value="">Todos os Serviços</option>
+                        </select>
+                        <select id="filter-status" class="action-btn" style="background: var(--bg-card);">
+                            <option value="">Todos os Status</option>
+                            <option value="pending">Pendente</option>
+                            <option value="completed">Concluído</option>
+                            <option value="cancelled">Cancelado</option>
+                        </select>
+                        <div style="border-left: 1px solid #555; height: 20px; margin: 0 5px;"></div>
+                        <button id="btn-list-view" class="action-btn active">Lista</button>
+                        <button id="btn-calendar-view" class="action-btn">Calendário</button>
+                    </div>
+                </div>
+
+                <div id="appointments-list-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Data/Hora</th>
+                                <th>Cliente</th>
+                                <th>Serviço</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="appointments-list">
+                            <!-- Items rendered via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="calendar-container" class="hidden">
+                    <div id="calendar"></div>
+                </div>
+            </div>
+
+            <!-- Services Tab -->
+            <div id="tab-services" class="tab-content hidden">
+                <button id="add-service-btn" class="btn-primary">Novo Serviço</button>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Ícone</th>
+                            <th>Nome</th>
+                            <th>Preço (R$)</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="services-list">
+                        <!-- Items rendered via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Reports Tab -->
+            <div id="tab-reports" class="tab-content hidden">
+                <div class="filter-row">
+                    <div class="form-group">
+                        <label>Data Inicial</label>
+                        <input type="date" id="report-start">
+                    </div>
+                    <div class="form-group">
+                        <label>Data Final</label>
+                        <input type="date" id="report-end">
+                    </div>
+                    <button id="generate-report" class="btn-primary">Gerar Relatório</button>
+                </div>
+                <div id="report-total" style="margin: 20px 0; font-size: 1.2rem; color: var(--gold);"></div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data/Hora</th>
+                            <th>Cliente</th>
+                            <th>Serviço</th>
+                            <th>Pagamento</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reports-list"></tbody>
+                </table>
+            </div>
+
+            <!-- Clients Tab -->
+            <div id="tab-clients" class="tab-content hidden">
+                <input type="text" id="client-search" placeholder="Buscar cliente..."
+                    style="margin-bottom: 20px; width: 100%; padding: 10px;">
+                <div id="clients-list"></div>
+            </div>
+
+            <!-- Messages Tab -->
+            <div id="tab-messages" class="tab-content hidden">
+                <h3>Enviar Mensagem para Todos os Clientes</h3>
+                <div class="form-group">
+                    <label>Mensagem</label>
+                    <textarea id="message-content" placeholder="Digite sua mensagem aqui..."></textarea>
+                </div>
+                <button id="send-bulk-message" class="btn-primary">Enviar para Todos via WhatsApp</button>
+                <h3 style="margin-top: 40px;">Histórico de Mensagens</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data/Hora</th>
+                            <th>Mensagem</th>
+                            <th>Destinatários</th>
+                        </tr>
+                    </thead>
+                    <tbody id="messages-list"></tbody>
+                </table>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="tab-users" class="tab-content hidden">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                    <h3>Gerenciar Usuários</h3>
+                    <div>
+                        <button id="change-password-btn" class="action-btn" style="margin-right: 10px;">Alterar Minha
+                            Senha</button>
+                        <button id="add-user-btn" class="btn-primary">Novo Usuário</button>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Usuário</th>
+                            <th>Nome Completo</th>
+                            <th>Perfil</th>
+                            <th>Último Login</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-list"></tbody>
+                </table>
+            </div>
+
+            <!-- Backups Tab -->
+            <div id="tab-backups" class="tab-content hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Gerenciar Backups</h2>
+                    <button id="create-backup-btn" class="action-btn">Criar Novo Backup Manual</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Tamanho</th>
+                            <th>Criado em</th>
+                        </tr>
+                    </thead>
+                    <tbody id="backups-list">
+                        <!-- Items rendered via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Logs Tab -->
+            <div id="tab-logs" class="tab-content hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Logs de Auditoria</h2>
+                    <button id="refresh-logs" class="action-btn">Atualizar Logs</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data/Hora</th>
+                            <th>Usuário</th>
+                            <th>Ação</th>
+                            <th>Detalhes</th>
+                            <th>IP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="audit-logs-list">
+                        <!-- Items rendered via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Client History Modal -->
+        <div id="client-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-modal"
+                    onclick="document.getElementById('client-modal').classList.add('hidden')">&times;</span>
+                <h2 id="client-modal-title">Histórico do Cliente</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data/Hora</th>
+                            <th>Serviço</th>
+                            <th>Status</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody id="client-history-list"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Payment Modal -->
+        <div id="payment-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-modal"
+                    onclick="document.getElementById('payment-modal').classList.add('hidden')">&times;</span>
+                <h2>Registrar Pagamento</h2>
+                <form id="payment-form">
+                    <input type="hidden" id="payment-appointment-id">
+                    <div class="form-group">
+                        <label>Forma de Pagamento</label>
+                        <select id="payment-method" required>
+                            <option value="">Selecione...</option>
+                            <option value="dinheiro">Dinheiro</option>
+                            <option value="cartao">Cartão</option>
+                            <option value="pix">PIX</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Valor (R$)</label>
+                        <input type="number" id="payment-amount" step="0.01" required>
+                    </div>
+                    <button type="submit" class="btn-primary btn-block">Salvar</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Client Edit Modal -->
+        <div id="client-edit-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-modal"
+                    onclick="document.getElementById('client-edit-modal').classList.add('hidden')">&times;</span>
+                <h2>Editar Cliente</h2>
+                <form id="client-edit-form">
+                    <input type="hidden" id="client-edit-id">
+                    <div class="form-group">
+                        <label>Nome</label>
+                        <input type="text" id="client-edit-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Telefone</label>
+                        <input type="tel" id="client-edit-phone" required maxlength="15">
+                    </div>
+                    <button type="submit" class="btn-primary btn-block">Salvar</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- User Modal -->
+    <div id="user-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal"
+                onclick="document.getElementById('user-modal').classList.add('hidden')">&times;</span>
+            <h2 id="user-modal-title">Novo Usuário</h2>
+            <form id="user-form">
+                <input type="hidden" id="user-id">
+                <div class="form-group">
+                    <label>Usuário</label>
+                    <input type="text" id="user-username" required>
+                </div>
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" id="user-fullname" required>
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="user-password" placeholder="Deixe em branco para manter a senha atual">
+                </div>
+                <div class="form-group">
+                    <label>Perfil</label>
+                    <select id="user-role" required>
+                        <option value="admin">Administrador</option>
+                        <option value="operator">Operador</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary btn-block">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="change-password-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal"
+                onclick="document.getElementById('change-password-modal').classList.add('hidden')">&times;</span>
+            <h2>Alterar Minha Senha</h2>
+            <form id="change-password-form">
+                <div class="form-group">
+                    <label>Senha Atual</label>
+                    <input type="password" id="current-password" required>
+                </div>
+                <div class="form-group">
+                    <label>Nova Senha</label>
+                    <input type="password" id="new-password" required minlength="4">
+                </div>
+                <div class="form-group">
+                    <label>Confirmar Nova Senha</label>
+                    <input type="password" id="confirm-password" required minlength="4">
+                </div>
+                <button type="submit" class="btn-primary btn-block">Alterar Senha</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Service Modal -->
+    <div id="service-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="modal-title">Novo Serviço</h2>
+            <form id="service-form">
+                <input type="hidden" id="service-id">
+                <div class="form-group">
+                    <label>Nome</label>
+                    <input type="text" id="svc-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <input type="text" id="svc-desc" required>
+                </div>
+                <div class="form-group">
+                    <label>Preço</label>
+                    <input type="number" id="svc-price" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Ícone (Emoji)</label>
+                    <input type="text" id="svc-icon" placeholder="ex: ✂️">
+                </div>
+                <button type="submit" class="btn-primary btn-block">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+
+</html>
