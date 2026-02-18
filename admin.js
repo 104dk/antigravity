@@ -240,7 +240,9 @@
         const statusFilter = filterStatus.value;
 
         try {
-            const res = await fetch(`${API_URL}/admin/appointments`);
+            const res = await fetch(`${API_URL}/admin/appointments`, {
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
             let appointments = await res.json();
 
             // Apply Filters
@@ -279,7 +281,9 @@
     // --- Dashboard Logic ---
     async function loadDashboardStats() {
         try {
-            const res = await fetch(`${API_URL}/stats`);
+            const res = await fetch(`${API_URL}/stats`, {
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
             const stats = await res.json();
 
             document.getElementById('stat-today').textContent = stats.todayCount || 0;
@@ -308,7 +312,9 @@
         const statusFilter = filterStatus.value;
 
         try {
-            const res = await fetch(`${API_URL}/admin/appointments`);
+            const res = await fetch(`${API_URL}/admin/appointments`, {
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
             let appointments = await res.json();
 
             // Apply Filters
@@ -347,7 +353,10 @@
         try {
             await fetch(`${API_URL}/appointments/${id}/status`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentToken}`
+                },
                 body: JSON.stringify({ status })
             });
             loadAppointments();
@@ -373,7 +382,10 @@
         try {
             await fetch(`${API_URL}/appointments/${id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentToken}`
+                },
                 body: JSON.stringify({ payment_method, amount: parseFloat(amount) })
             });
             document.getElementById('payment-modal').classList.add('hidden');
@@ -395,7 +407,9 @@
         }
 
         try {
-            const res = await fetch(`${API_URL}/reports?start=${start}&end=${end}`);
+            const res = await fetch(`${API_URL}/reports?start=${start}&end=${end}`, {
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
             const data = await res.json();
 
             document.getElementById('report-total').textContent = `Total: R$ ${data.total.toFixed(2)}`;
@@ -421,7 +435,9 @@
     // --- Clients Logic ---
     async function loadClients() {
         try {
-            const res = await fetch(`${API_URL}/clients`);
+            const res = await fetch(`${API_URL}/clients`, {
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
             const clients = await res.json();
 
             const container = document.getElementById('clients-list');
@@ -468,7 +484,10 @@
         if (!confirm(`Tem certeza que deseja excluir o cliente "${name}"?\n\nISTO IRÁ EXCLUIR TODOS OS AGENDAMENTOS DESTE CLIENTE!`)) return;
 
         try {
-            await fetch(`${API_URL}/clients/${id}`, { method: 'DELETE' });
+            await fetch(`${API_URL}/clients/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
             loadClients();
             alert('Cliente excluído com sucesso!');
         } catch (err) {
@@ -485,7 +504,10 @@
         try {
             await fetch(`${API_URL}/clients/${id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentToken}`
+                },
                 body: JSON.stringify({ name, phone })
             });
             document.getElementById('client-edit-modal').classList.add('hidden');
@@ -498,7 +520,9 @@
 
     window.viewClientHistory = async (clientId, clientName) => {
         try {
-            const res = await fetch(`${API_URL}/clients/${clientId}/history`);
+            const res = await fetch(`${API_URL}/clients/${clientId}/history`, {
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
             const history = await res.json();
 
             document.getElementById('client-modal-title').textContent = `Histórico: ${clientName}`;
@@ -525,7 +549,9 @@
     // --- Messages Logic ---
     async function loadMessages() {
         try {
-            const res = await fetch(`${API_URL}/messages`);
+            const res = await fetch(`${API_URL}/messages`, {
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
             const messages = await res.json();
 
             const tbody = document.getElementById('messages-list');
@@ -557,13 +583,18 @@
 
         try {
             // Get all clients
-            const res = await fetch(`${API_URL}/clients`);
+            const res = await fetch(`${API_URL}/clients`, {
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
             const clients = await res.json();
 
             // Log message
             await fetch(`${API_URL}/messages`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentToken}`
+                },
                 body: JSON.stringify({ content: message, recipient_count: clients.length })
             });
 
@@ -590,17 +621,21 @@
 
     async function loadServices() {
         const tbody = document.getElementById('services-list');
+        if (!tbody) return;
+
         try {
             const res = await fetch(`${API_URL}/services`);
             const services = await res.json();
 
-            tbody.innerHTML = '';
+            tbody.innerHTML = ''; // Clear previous items
+            if (!Array.isArray(services)) return;
+
             services.forEach(svc => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td style="font-size: 1.5rem;">${svc.icon || ''}</td>
                     <td>${svc.name}</td>
-                    <td>R$ ${svc.price}</td>
+                    <td>R$ ${parseFloat(svc.price || 0).toFixed(2)}</td>
                     <td>
                         <button class="action-btn" onclick='editService(${JSON.stringify(svc)})'>✏️</button>
                         <button class="action-btn" onclick="deleteService(${svc.id})">🗑️</button>
@@ -609,7 +644,8 @@
                 tbody.appendChild(tr);
             });
         } catch (err) {
-            console.error(err);
+            console.error('Error loading services:', err);
+            tbody.innerHTML = '<tr><td colspan="4">Erro ao carregar serviços.</td></tr>';
         }
     }
 
@@ -628,25 +664,41 @@
         e.preventDefault();
         const id = document.getElementById('service-id').value;
         const data = {
-            name: document.getElementById('svc-name').value,
-            description: document.getElementById('svc-desc').value,
+            name: document.getElementById('svc-name').value.trim(),
+            description: document.getElementById('svc-desc').value.trim(),
             price: document.getElementById('svc-price').value,
-            icon: document.getElementById('svc-icon').value
+            icon: document.getElementById('svc-icon').value.trim()
         };
+
+        if (!data.name || !data.price) {
+            alert('Nome e preço são obrigatórios');
+            return;
+        }
 
         const method = id ? 'PUT' : 'POST';
         const url = id ? `${API_URL}/services/${id}` : `${API_URL}/services`;
 
         try {
-            await fetch(url, {
+            const res = await fetch(url, {
                 method: method,
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentToken}`
+                },
                 body: JSON.stringify(data)
             });
-            serviceModal.classList.add('hidden');
-            loadServices();
+            const result = await res.json();
+
+            if (res.ok) {
+                serviceModal.classList.add('hidden');
+                loadServices();
+                alert(id ? 'Serviço atualizado!' : 'Serviço criado!');
+            } else {
+                alert('Erro: ' + (result.error || 'Falha ao salvar'));
+            }
         } catch (err) {
-            alert('Erro ao salvar serviço');
+            console.error('Error saving service:', err);
+            alert('Erro ao conectar com o servidor');
         }
     });
 
@@ -663,10 +715,19 @@
     window.deleteService = async (id) => {
         if (!confirm('Tem certeza que deseja remover este serviço?')) return;
         try {
-            await fetch(`${API_URL}/services/${id}`, { method: 'DELETE' });
-            loadServices();
+            const res = await fetch(`${API_URL}/services/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
+            if (res.ok) {
+                loadServices();
+                alert('Serviço removido!');
+            } else {
+                const data = await res.json();
+                alert('Erro: ' + (data.error || 'Falha ao remover'));
+            }
         } catch (err) {
-            alert('Erro ao remover serviço');
+            alert('Erro ao conectar com o servidor');
         }
     };
 

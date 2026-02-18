@@ -166,12 +166,58 @@ app.get('/api/availability', async (req, res) => {
     }
 });
 
-// Get Services
+// Get Services (public)
 app.get('/api/services', async (req, res) => {
     try {
         const { data, error } = await supabase.from('services').select('*').order('name');
         if (error) throw error;
         res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Create Service (admin)
+app.post('/api/services', authenticateToken, async (req, res) => {
+    const { name, description, price, icon } = req.body;
+    if (!name || !price) return res.status(400).json({ error: 'Nome e preço são obrigatórios' });
+    try {
+        const { data, error } = await supabase
+            .from('services')
+            .insert([{ name, description, price: parseFloat(price), icon }])
+            .select()
+            .single();
+        if (error) throw error;
+        logAudit(req.user.id, 'SERVICE_CREATE', `Novo serviço: ${name}`, req);
+        res.json({ success: true, service: data });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Update Service (admin)
+app.put('/api/services/:id', authenticateToken, async (req, res) => {
+    const { name, description, price, icon } = req.body;
+    try {
+        const { error } = await supabase
+            .from('services')
+            .update({ name, description, price: parseFloat(price), icon })
+            .eq('id', req.params.id);
+        if (error) throw error;
+        logAudit(req.user.id, 'SERVICE_UPDATE', `Serviço ID: ${req.params.id}`, req);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Delete Service (admin)
+app.delete('/api/services/:id', authenticateToken, async (req, res) => {
+    try {
+        const { error } = await supabase.from('services').delete().eq('id', req.params.id);
+        if (error) throw error;
+        logAudit(req.user.id, 'SERVICE_DELETE', `Serviço ID: ${req.params.id}`, req);
+        res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -413,6 +459,22 @@ app.post('/api/users', authenticateToken, requireAdmin, async (req, res) => {
         if (error) throw error;
         logAudit(req.user.id, 'USER_CREATE', `Novo usuário: ${username}`, req);
         res.json({ success: true, user: data });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.put('/api/users/:id', authenticateToken, requireAdmin, async (req, res) => {
+    const { username, full_name, role, password } = req.body;
+    try {
+        const updates = { username, full_name, role };
+        if (password) {
+            updates.password_hash = await hashPassword(password);
+        }
+        const { error } = await supabase.from('users').update(updates).eq('id', req.params.id);
+        if (error) throw error;
+        logAudit(req.user.id, 'USER_UPDATE', `Usuário ID: ${req.params.id}`, req);
+        res.json({ success: true, message: 'Usuário atualizado com sucesso!' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
