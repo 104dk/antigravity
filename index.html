@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lumière Salon | Elegância e Estilo</title>
+    <title>Tata Nail | Beleza & Elegância</title>
     <meta name="description"
-        content="Experimente o luxo e o cuidado que você merece no Lumière Salon. Cortes, cores e tratamentos exclusivos.">
+        content="Experimente o luxo e o cuidado que você merece na Tata Nail. Unhas, manicure, pedicure e tratamentos exclusivos.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -18,7 +18,7 @@
 <body>
     <header id="main-header">
         <div class="container">
-            <a href="#" class="logo">Lumière Salon</a>
+            <a href="#" class="logo">💅 Tata Nail</a>
             <nav>
                 <button id="mobile-menu-btn" aria-label="Abrir menu">
                     <span></span>
@@ -37,16 +37,22 @@
     </header>
 
     <main>
+        <!-- Hero Section -->
         <section id="hero">
             <div class="hero-bg">
-                <img src="https://placehold.co/1920x1080/1a1a1a/d4af37?text=Lumière+Salon+Interior"
-                    alt="Interior luxuoso do Lumière Salon">
                 <div class="overlay"></div>
             </div>
             <div class="container hero-content">
-                <h1>Revele Sua <span class="text-gold">Verdadeira Beleza</span></h1>
-                <p>Onde a elegância encontra a arte. Transforme seu visual com nossos especialistas premium.</p>
-                <a href="#booking" class="btn-primary">Reserve Seu Horário</a>
+                <div class="hero-badge">✨ Profissionais Experts &nbsp;|&nbsp; 💎 Produtos Premium &nbsp;|&nbsp; 👑
+                    Atendimento VIP</div>
+                <h1><span class="text-gold">Tata</span> Nail</h1>
+                <p>Beleza e Elegância que Realçam sua Melhor Versão</p>
+                <div class="hero-buttons">
+                    <a href="#booking" class="btn-primary">Agendar Agora →</a>
+                    <a href="https://wa.me/5561993602116" target="_blank" class="btn-whatsapp">
+                        <span>📱</span> WhatsApp
+                    </a>
+                </div>
             </div>
             <div class="scroll-down">
                 <span>Explore</span>
@@ -54,35 +60,85 @@
             </div>
         </section>
 
+        <!-- Services Section -->
         <section id="services">
             <div class="container">
-                <h2 class="section-title">Nossos <span class="text-gold">Serviços</span></h2>
+                <div class="section-title-wrapper">
+                    <div class="section-divider">◆</div>
+                    <h2 class="section-title">Nossos <span class="text-gold">Serviços</span></h2>
+                    <div class="section-divider">◆</div>
+                </div>
                 <div class="services-grid" id="services-container">
-                    <!-- Services will be loaded dynamically via JS -->
-                    <p>Carregando serviços...</p>
+                    <!-- Services loaded dynamically -->
+                    <div class="service-card-skeleton"></div>
+                    <div class="service-card-skeleton"></div>
+                    <div class="service-card-skeleton"></div>
+                    <div class="service-card-skeleton"></div>
                 </div>
             </div>
         </section>
 
+        <!-- About Section -->
         <section id="about">
             <div class="container">
                 <div class="about-content">
                     <div class="about-text">
-                        <h2 class="section-title">Sobre o <span class="text-gold">Lumière</span></h2>
-                        <p>No Lumière Salon, acreditamos que a beleza é uma forma de arte. Nossa equipe de especialistas
+                        <h2 class="section-title text-left">Sobre a <span class="text-gold">Tata Nail</span></h2>
+                        <p>Na Tata Nail, acreditamos que a beleza é uma forma de arte. Nossa equipe de especialistas
                             dedicados combina técnicas modernas com um atendimento personalizado para criar uma
                             experiência única de luxo e bem-estar.</p>
-                        <p>Localizado no coração da cidade, nosso espaço foi desenhado para ser seu refúgio de
+                        <p>Localizada no coração da cidade, nossa espaço foi desenhado para ser seu refúgio de
                             tranquilidade e renovação.</p>
+                        <div class="about-stats">
+                            <div class="stat">
+                                <span class="stat-number">⭐⭐⭐⭐⭐</span>
+                                <span class="stat-label">Avaliação 5 estrelas</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-icon">👩‍💼</span>
+                                <span class="stat-label">Atendimento Premium</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-icon">🏠</span>
+                                <span class="stat-label">Ambiente Aconchegante</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="about-image">
-                        <!-- Placeholder for about image if needed, using CSS styling for now -->
                         <div class="image-box"></div>
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- CTA Banner -->
+        <section id="cta-banner">
+            <div class="container cta-content">
+                <div class="cta-left">
+                    <div class="about-stats">
+                        <div class="stat">
+                            <span class="stat-number">⭐⭐⭐⭐⭐</span>
+                            <span class="stat-label">Avaliação 5 estrelas</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-icon">👩‍💼</span>
+                            <span class="stat-label">Atendimento Premium</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-icon">🏠</span>
+                            <span class="stat-label">Ambiente Aconchegante</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="cta-right">
+                    <h3>Pronta para <span class="text-gold">Brilhar?</span></h3>
+                    <p>Agende seu horário e transforme seu visual!</p>
+                    <a href="#booking" class="btn-primary">Agendar Agora →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Booking Section -->
         <section id="booking">
             <div class="container">
                 <div class="booking-wrapper">
@@ -103,10 +159,7 @@
                             <label for="service">Serviço Desejado</label>
                             <select id="service" name="service" required>
                                 <option value="" disabled selected>Selecione um serviço</option>
-                                <option value="corte">Corte & Estilo</option>
-                                <option value="coloracao">Coloração</option>
-                                <option value="manicure">Manicure & Pedicure</option>
-                                <option value="tratamento">Tratamento Capilar</option>
+                                <!-- Options loaded dynamically by JS -->
                             </select>
                         </div>
                         <div class="form-group">
@@ -116,7 +169,6 @@
                         <div class="form-group">
                             <label>Horário Disponível</label>
                             <div id="time-slots" class="time-slots-grid">
-                                <!-- Slots will be populated here via JS -->
                                 <p class="text-muted">Selecione uma data para ver os horários.</p>
                             </div>
                             <input type="hidden" id="selected-time" name="time" required>
@@ -131,21 +183,21 @@
     <footer id="contact">
         <div class="container footer-content">
             <div class="footer-info">
-                <h3>Lumière</h3>
+                <h3>💅 Tata Nail</h3>
                 <p>Rua 43 Quadra 149</p>
                 <p>Luziânia - GO</p>
-                <p>Telefone: (61) 982853421</p>
-                <p>Email: teste.teste@gmail.com</p>
+                <p>Telefone: (61) 98285-3421</p>
+                <p>Email: contato@tatanail.com.br</p>
             </div>
             <div class="footer-social">
                 <a href="#" aria-label="Instagram">Instagram</a>
                 <a href="#" aria-label="Facebook">Facebook</a>
-                <a href="https://wa.me/5561993602116?text=Olá, gostaria de saber mais sobre o Lumière Salon."
+                <a href="https://wa.me/5561993602116?text=Olá, gostaria de saber mais sobre a Tata Nail."
                     target="_blank" aria-label="WhatsApp">WhatsApp</a>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2024 Lumière Salon. Todos os direitos reservados.</p>
+            <p>&copy; 2025 Tata Nail. Todos os direitos reservados.</p>
         </div>
     </footer>
 
