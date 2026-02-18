@@ -1,54 +1,47 @@
-# Lumière Salon - Sistema de Gestão
+# Lumière Salon - Sistema de Gestão (Versão Supabase)
 
-Sistema completo para gerenciamento de salão de beleza, incluindo agendamento online para clientes e painel administrativo para os donos do salão.
+Sistema completo para gerenciamento de salão de beleza, agora com integração nativa com Supabase (PostgreSQL), ideal para deploy em produção.
 
 ## 🚀 Funcionalidades
-
-### Para Clientes
-- **Agendamento Online**: Interface intuitiva para escolher serviços, datas e horários.
-- **Integração WhatsApp**: Redirecionamento automático para confirmar agendamento via WhatsApp.
-
-### Para Administradores
-- **Dashboard**: Visão geral de atendimentos hoje, na semana, no mês e receita total.
-- **Gestão de Agendamentos**: Visualização em lista ou calendário (FullCalendar), com opção de reagendamento via arraste.
-- **Relatórios**: Filtro por data de atendimentos concluídos e receita gerada.
-- **Gestão de Clientes**: Histórico completo de cada cliente e total gasto.
-- **Marketing**: Envio de mensagens em massa para clientes via WhatsApp.
-- **Gestão de Serviços**: Cadastro, edição e remoção de serviços oferecidos.
-- **Segurança**: Auditoria de logs, gestão de usuários (Admin/Operador) e backups automáticos.
+- **Banco de Dados Real**: Utiliza Supabase para armazenamento persistente e seguro.
+- **Dashboard & Agendamentos**: Todas as funções administrativas sincronizadas na nuvem.
+- **Relatórios & Marketing**: Gestão financeira e disparo de WhatsApp integrados.
 
 ## 🛠️ Tecnologias
 - **Backend**: Node.js, Express
-- **Banco de Dados**: SQLite3
-- **Frontend**: HTML5, CSS3 (Vanilla), JavaScript
-- **Segurança**: JWT, Bcrypt, Helmet, Rate Limiting
+- **Banco de Dados**: Supabase (PostgreSQL)
+- **Frontend**: HTML5, CSS3, JS Vanilla
 
-## 📦 Instalação
+## 📦 Configuração e Instalação
 
-1.  **Clone o projeto** e navegue até a pasta:
-    ```bash
-    cd Anti
-    ```
+### 1. Preparar o Supabase
+1. Crie um projeto no [Supabase](https://supabase.com/).
+2. No menu **SQL Editor**, execute o conteúdo do arquivo `supabase_setup.sql` para criar as tabelas.
 
-2.  **Instale as dependências**:
-    ```bash
-    npm install
-    ```
+### 2. Configurar Variáveis de Ambiente
+Crie um arquivo `.env` na raiz do projeto com as seguintes chaves (obtidas em Project Settings > API no Supabase):
+```env
+SUPABASE_URL=sua_url_do_supabase
+SUPABASE_KEY=sua_anon_ou_service_key
+JWT_SECRET=uma_chave_secreta_para_tokens
+PORT=3000
+```
 
-3.  **Inicie o servidor**:
-    ```bash
-    npm start
-    ```
-    O servidor estará rodando em `http://localhost:3000`.
+### 3. Rodar Localmente
+1. Instale as dependências: `npm install`
+2. Inicie o servidor: `npm start`
 
-## 🔐 Acesso Administrativo
-- **URL**: `http://localhost:3000/admin.html`
-- **Usuário Padrão**: `admin`
-- **Senha Padrão**: `admin`
-*(Lembre-se de alterar a senha no primeiro acesso)*
+### 4. Criar Usuário Admin Inicial
+Após iniciar o servidor pela primeira vez, você precisa criar o primeiro usuário:
+- Use uma ferramenta como Postman ou cURL para fazer um POST:
+`POST http://localhost:3000/api/init-admin`
+Com o corpo JSON: `{ "secret": "LUMIERE_INITIAL_SECRET" }`
+- Isso criará o usuário `admin` com senha `admin`. **Altere a senha imediatamente no painel!**
 
-## 💾 Backups
-O sistema realiza backups automáticos do banco de dados diariamente às 03:00 AM na pasta `/backups`. Você também pode criar backups manuais na aba de Backups do Painel Admin.
+## 🌐 Deploy
+Para colocar o projeto online, sugerimos:
+- **Frontend**: Vercel ou Netlify (apontando o diretório raiz).
+- **Backend**: Render ou Railway (configurando as variáveis de ambiente do `.env` no painel da plataforma).
 
 ---
 Desenvolvido por DKempreendimentos Team.

@@ -1,0 +1,28 @@
+# Dependências
+node_modules/
+
+# Variáveis de ambiente (NUNCA enviar para o git)
+.env
+.env.local
+.env.production
+
+# Banco de dados local (não necessário no Supabase)
+*.db
+*.sqlite
+
+# Scripts temporários de verificação
+test_connection.js
+test_login.js
+check_schema.js
+create_admin.js
+
+# Backups locais
+backups/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
