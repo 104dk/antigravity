@@ -5,6 +5,7 @@ const cors = require('cors');
 const path = require('path');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const fileUpload = require('express-fileupload');
 const supabase = require('./database');
 const { hashPassword, verifyPassword, generateToken, authenticateToken, requireAdmin } = require('./auth');
 
@@ -179,12 +180,12 @@ app.get('/api/services', async (req, res) => {
 
 // Create Service (admin)
 app.post('/api/services', authenticateToken, async (req, res) => {
-    const { name, description, price, icon } = req.body;
+    const { name, description, price, image_url } = req.body;
     if (!name || !price) return res.status(400).json({ error: 'Nome e preço são obrigatórios' });
     try {
         const { data, error } = await supabase
             .from('services')
-            .insert([{ name, description, price: parseFloat(price), icon }])
+            .insert([{ name, description, price: parseFloat(price), image_url }])
             .select()
             .single();
         if (error) throw error;
@@ -197,16 +198,47 @@ app.post('/api/services', authenticateToken, async (req, res) => {
 
 // Update Service (admin)
 app.put('/api/services/:id', authenticateToken, async (req, res) => {
-    const { name, description, price, icon } = req.body;
+    const { name, description, price, image_url } = req.body;
     try {
         const { error } = await supabase
             .from('services')
-            .update({ name, description, price: parseFloat(price), icon })
+            .update({ name, description, price: parseFloat(price), image_url })
             .eq('id', req.params.id);
         if (error) throw error;
         logAudit(req.user.id, 'SERVICE_UPDATE', `Serviço ID: ${req.params.id}`, req);
         res.json({ success: true });
     } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Image Upload Endpoint (admin)
+app.post('/api/upload', authenticateToken, async (req, res) => {
+    if (!req.files || Object.keys(req.files).length === 0) {
+        return res.status(400).json({ error: 'Nenhum arquivo enviado' });
+    }
+
+    const file = req.files.file;
+    const fileName = `${Date.now()}-${file.name.replace(/\s/g, '_')}`;
+
+    try {
+        const { data, error } = await supabase.storage
+            .from('services')
+            .upload(fileName, file.data, {
+                contentType: file.mimetype,
+                upsert: true
+            });
+
+        if (error) throw error;
+
+        // Get Public URL
+        const { data: { publicUrl } } = supabase.storage
+            .from('services')
+            .getPublicUrl(fileName);
+
+        res.json({ success: true, url: publicUrl });
+    } catch (err) {
+        console.error('Upload Error:', err);
         res.status(500).json({ error: err.message });
     }
 });

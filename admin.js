@@ -632,8 +632,12 @@
 
             services.forEach(svc => {
                 const tr = document.createElement('tr');
+                const photo = svc.image_url
+                    ? `<img src="${svc.image_url}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border);">`
+                    : `<div style="width: 40px; height: 40px; background: #222; display: flex; align-items: center; justify-content: center; border-radius: 4px; border: 1px solid var(--border);">🖼️</div>`;
+
                 tr.innerHTML = `
-                    <td style="font-size: 1.5rem;">${svc.icon || ''}</td>
+                    <td>${photo}</td>
                     <td>${svc.name}</td>
                     <td>R$ ${parseFloat(svc.price || 0).toFixed(2)}</td>
                     <td>
@@ -652,9 +656,27 @@
     document.getElementById('add-service-btn').addEventListener('click', () => {
         document.getElementById('service-form').reset();
         document.getElementById('service-id').value = '';
+        document.getElementById('svc-image').value = '';
+        document.getElementById('image-preview').innerHTML = '🖼️';
         document.getElementById('modal-title').textContent = 'Novo Serviço';
         serviceModal.classList.remove('hidden');
     });
+
+    // Image Preview Logic
+    const svcFile = document.getElementById('svc-file');
+    const imagePreview = document.getElementById('image-preview');
+    if (svcFile) {
+        svcFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (re) => {
+                    imagePreview.innerHTML = `<img src="${re.target.result}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
 
     document.querySelector('.close-modal').addEventListener('click', () => {
         serviceModal.classList.add('hidden');
@@ -662,12 +684,15 @@
 
     serviceForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const submitBtn = serviceForm.querySelector('button[type="submit"]');
+        const fileInput = document.getElementById('svc-file');
         const id = document.getElementById('service-id').value;
+
         const data = {
             name: document.getElementById('svc-name').value.trim(),
             description: document.getElementById('svc-desc').value.trim(),
             price: document.getElementById('svc-price').value,
-            icon: document.getElementById('svc-icon').value.trim()
+            image_url: document.getElementById('svc-image').value
         };
 
         if (!data.name || !data.price) {
@@ -675,10 +700,32 @@
             return;
         }
 
-        const method = id ? 'PUT' : 'POST';
-        const url = id ? `${API_URL}/services/${id}` : `${API_URL}/services`;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Salvando...';
 
         try {
+            // Upload file if selected
+            if (fileInput.files.length > 0) {
+                submitBtn.textContent = 'Subindo imagem...';
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+
+                const uploadRes = await fetch(`${API_URL}/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${currentToken}` },
+                    body: formData
+                });
+                const uploadData = await uploadRes.json();
+                if (uploadRes.ok) {
+                    data.image_url = uploadData.url;
+                } else {
+                    throw new Error(uploadData.error || 'Erro no upload');
+                }
+            }
+
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `${API_URL}/services/${id}` : `${API_URL}/services`;
+
             const res = await fetch(url, {
                 method: method,
                 headers: {
@@ -698,16 +745,26 @@
             }
         } catch (err) {
             console.error('Error saving service:', err);
-            alert('Erro ao conectar com o servidor');
+            alert('Erro: ' + err.message);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Salvar';
         }
     });
 
     window.editService = (svc) => {
         document.getElementById('service-id').value = svc.id;
         document.getElementById('svc-name').value = svc.name;
-        document.getElementById('svc-desc').value = svc.description;
+        document.getElementById('svc-desc').value = svc.description || '';
         document.getElementById('svc-price').value = svc.price;
-        document.getElementById('svc-icon').value = svc.icon;
+        document.getElementById('svc-image').value = svc.image_url || '';
+
+        if (svc.image_url) {
+            imagePreview.innerHTML = `<img src="${svc.image_url}" style="width: 100%; height: 100%; object-fit: cover;">`;
+        } else {
+            imagePreview.innerHTML = '🖼️';
+        }
+
         document.getElementById('modal-title').textContent = 'Editar Serviço';
         serviceModal.classList.remove('hidden');
     };

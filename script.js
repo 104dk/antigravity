@@ -82,9 +82,14 @@ if (window.__tataNailInit) {
                         // Card
                         const card = document.createElement('div');
                         card.className = 'service-card';
+
+                        const photoContent = svc.image_url
+                            ? `<img src="${svc.image_url}" alt="${svc.name}">`
+                            : `<div class="service-photo-inner">💅</div>`;
+
                         card.innerHTML = `
                             <div class="service-photo">
-                                <div class="service-photo-inner"></div>
+                                ${photoContent}
                             </div>
                             <div class="service-body">
                                 <h3>${svc.name}</h3>
@@ -230,6 +235,23 @@ if (window.__tataNailInit) {
                 const el = document.querySelector(id);
                 if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth' }); }
             });
+        });
+
+        // ── SCROLL ANIMATIONS ──
+        const observerOptions = {
+            threshold: 0.15
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
         });
     }
 }

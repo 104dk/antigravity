@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS services (
     name TEXT NOT NULL,
     description TEXT,
     price DECIMAL(10,2),
-    icon TEXT
+    icon TEXT,
+    image_url TEXT
 );
 
 -- Tabela de Agendamentos
