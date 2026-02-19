@@ -93,6 +93,7 @@
         loadDashboardStats();
         loadAppointments();
         loadServices();
+        loadSettings();
     }
 
     // --- Tabs Logic ---
@@ -1021,6 +1022,119 @@
             alert('Erro ao criar backup');
         }
     });
+
+    // --- Settings Logic ---
+    async function loadSettings() {
+        try {
+            const res = await fetch(`${API_URL}/settings`);
+            const settings = await res.json();
+
+            const logoUrlInput = document.getElementById('site-logo-url');
+            const logoPreview = document.getElementById('site-logo-preview');
+
+            if (settings.site_logo) {
+                logoUrlInput.value = settings.site_logo;
+                updateLogoPreview(settings.site_logo);
+            }
+        } catch (err) {
+            console.error('Error loading settings:', err);
+        }
+    }
+
+    function updateLogoPreview(value) {
+        const logoPreview = document.getElementById('site-logo-preview');
+        if (!value) {
+            logoPreview.innerHTML = '💅';
+            return;
+        }
+
+        // Check if it's a URL or emoji (simple check)
+        if (value.startsWith('http') || value.startsWith('/img/') || value.startsWith('data:')) {
+            logoPreview.innerHTML = `<img src="${value}" style="width: 100%; height: 100%; object-fit: cover;">`;
+        } else {
+            logoPreview.innerHTML = value;
+        }
+    }
+
+    document.getElementById('site-logo-url').addEventListener('input', (e) => {
+        updateLogoPreview(e.target.value);
+    });
+
+    document.getElementById('save-settings-btn').addEventListener('click', async () => {
+        const logo = document.getElementById('site-logo-url').value;
+        const btn = document.getElementById('save-settings-btn');
+
+        btn.disabled = true;
+        btn.textContent = 'Salvando...';
+
+        try {
+            const res = await fetch(`${API_URL}/settings`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentToken}`
+                },
+                body: JSON.stringify({ settings: { site_logo: logo } })
+            });
+
+            if (res.ok) {
+                alert('Configurações salvas!');
+            } else {
+                alert('Erro ao salvar');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Erro de conexão');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Salvar Alterações';
+        }
+    });
+
+    window.openImageSelector = async () => {
+        const modal = document.getElementById('image-selector-modal');
+        const grid = document.getElementById('image-selector-grid');
+        grid.innerHTML = 'Carregando...';
+        modal.classList.remove('hidden');
+
+        try {
+            const res = await fetch(`${API_URL}/admin/images`, {
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
+            const images = await res.json();
+
+            grid.innerHTML = '';
+            images.forEach(img => {
+                const div = document.createElement('div');
+                div.style.cursor = 'pointer';
+                div.style.border = '1px solid #333';
+                div.style.borderRadius = '4px';
+                div.style.padding = '5px';
+                div.style.textAlign = 'center';
+                div.innerHTML = `
+                    <img src="${img.url}" style="width: 100%; aspect-ratio: 1; object-fit: cover; display: block; margin-bottom: 5px;">
+                    <small style="font-size: 0.6rem; word-break: break-all;">${img.name}</small>
+                `;
+                div.onclick = () => {
+                    document.getElementById('site-logo-url').value = img.url;
+                    updateLogoPreview(img.url);
+                    modal.classList.add('hidden');
+                };
+                grid.appendChild(div);
+            });
+
+            if (images.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1;">Nenhuma imagem encontrada na pasta /img</p>';
+            }
+        } catch (err) {
+            grid.innerHTML = 'Erro ao carregar imagens';
+        }
+    };
+
+    window.removeLogo = () => {
+        document.getElementById('site-logo-url').value = '';
+        updateLogoPreview('');
+    };
 
     // Helpers
     function formatDate(dateStr) {

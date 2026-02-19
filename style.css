@@ -168,6 +168,31 @@ img {
     font-weight: 700;
     color: var(--gold) !important;
     letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.site-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.site-icon img {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+}
+
+#hero-logo img {
+    height: 80px;
+    margin-bottom: 15px;
+}
+
+#hero-logo {
+    display: block;
+    margin-bottom: 5px;
 }
 
 nav ul {

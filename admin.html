@@ -338,6 +338,35 @@
                     </thead>
                     <tbody id="top-services-list"></tbody>
                 </table>
+
+                <div
+                    style="margin-top: 50px; padding: 30px; border: 1px solid var(--border); border-radius: 8px; background: rgba(255,255,255,0.02);">
+                    <h3 style="margin-bottom: 20px;">Configurações Globais do Site</h3>
+                    <div class="form-group">
+                        <label>Ícone / Logo do Site</label>
+                        <div style="display: flex; gap: 20px; align-items: center; margin-top: 10px;">
+                            <div id="site-logo-preview"
+                                style="width: 100px; height: 100px; background: #111; border: 1px solid var(--gold); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 3rem; overflow: hidden;">
+                                💅
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                    <button type="button" class="btn-primary" onclick="window.openImageSelector()"
+                                        style="padding: 8px 15px; font-size: 0.8rem;">Selecionar da Pasta /
+                                        Galeria</button>
+                                    <button type="button" class="action-btn" onclick="window.removeLogo()"
+                                        style="padding: 8px 15px; font-size: 0.8rem;">Remover / Resetar</button>
+                                </div>
+                                <input type="text" id="site-logo-url" placeholder="URL da imagem ou emoji"
+                                    style="margin-bottom: 5px;">
+                                <p style="font-size: 0.75rem; color: var(--text-muted);">Você pode colar a URL de uma
+                                    imagem, usar um emoji ou selecionar um arquivo.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="save-settings-btn" class="btn-primary" style="margin-top: 10px;">Salvar
+                        Alterações</button>
+                </div>
             </div>
 
             <!-- Appointments Tab -->
@@ -687,6 +716,19 @@
                 </div>
                 <button type="submit" class="btn-primary btn-block">Salvar</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Image Selector Modal -->
+    <div id="image-selector-modal" class="modal hidden">
+        <div class="modal-content" style="width: 600px;">
+            <span class="close-modal"
+                onclick="document.getElementById('image-selector-modal').classList.add('hidden')">&times;</span>
+            <h2>Selecionar Imagem</h2>
+            <div id="image-selector-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 20px; max-height: 400px; overflow-y: auto;">
+                <!-- Images rendered via JS -->
+            </div>
         </div>
     </div>
 

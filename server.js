@@ -255,6 +255,58 @@ app.delete('/api/services/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// --- Site Settings API ---
+
+// Public Get Settings
+app.get('/api/settings', async (req, res) => {
+    try {
+        const { data, error } = await supabase.from('settings').select('*');
+        if (error) throw error;
+        // Convert array to object { key: value }
+        const settings = data.reduce((acc, curr) => {
+            acc[curr.key] = curr.value;
+            return acc;
+        }, {});
+        res.json(settings);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Admin Update Settings
+app.put('/api/settings', authenticateToken, requireAdmin, async (req, res) => {
+    const { settings } = req.body; 
+    if (!settings || typeof settings !== 'object') return res.status(400).json({ error: 'Configurações inválidas' });
+
+    try {
+        const promises = Object.entries(settings).map(async ([key, value]) => {
+            return await supabase.from('settings').upsert({ key, value });
+        });
+        const results = await Promise.all(promises);
+        const errors = results.filter(r => r.error);
+        if (errors.length > 0) throw errors[0].error;
+
+        logAudit(req.user.id, 'SETTINGS_UPDATE', `Atualizou configurações: ${Object.keys(settings).join(', ')}`, req);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Admin List Local Images
+app.get('/api/admin/images', authenticateToken, async (req, res) => {
+    const imgDir = path.join(__dirname, 'img');
+    const fs = require('fs');
+    try {
+        if (!fs.existsSync(imgDir)) return res.json([]);
+        const files = fs.readdirSync(imgDir);
+        const images = files.filter(f => ['.png', '.jpg', '.jpeg', '.webp', '.svg'].includes(path.extname(f).toLowerCase()));
+        res.json(images.map(name => ({ name, url: `/img/${name}` })));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Admin Login
 app.post('/api/login', loginLimiter, async (req, res) => {
     const { username, password } = req.body;

@@ -253,5 +253,31 @@ if (window.__tataNailInit) {
         document.querySelectorAll('section').forEach(section => {
             observer.observe(section);
         });
+
+        // ── SITE SETTINGS (LOGO) ──
+        function loadSiteSettings() {
+            fetch('/api/settings')
+                .then(r => r.json())
+                .then(settings => {
+                    const headerLogo = document.getElementById('header-logo');
+                    const heroLogo = document.getElementById('hero-logo');
+                    const logoValue = settings.site_logo || '💅';
+
+                    const injectLogo = (el, size) => {
+                        if (!el) return;
+                        if (logoValue.startsWith('http') || logoValue.startsWith('/img/') || logoValue.startsWith('data:')) {
+                            el.innerHTML = `<img src="${logoValue}" alt="Logo">`;
+                        } else {
+                            el.innerHTML = logoValue;
+                        }
+                    };
+
+                    injectLogo(headerLogo);
+                    injectLogo(heroLogo);
+                })
+                .catch(err => console.error('Erro ao carregar configurações:', err));
+        }
+
+        loadSiteSettings();
     }
 }
