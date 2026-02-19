@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "push": "git add . && git commit -m \"update\" && git push origin main"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.95.3",
