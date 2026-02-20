@@ -109,12 +109,19 @@
             // Load data when switching tabs
             if (btn.dataset.tab === 'dashboard') loadDashboardStats();
             if (btn.dataset.tab === 'clients') loadClients();
+            if (btn.dataset.tab === 'gallery') loadGallery();
             if (btn.dataset.tab === 'messages') loadMessages();
             if (btn.dataset.tab === 'users') loadUsers();
             if (btn.dataset.tab === 'backups') loadBackups();
             if (btn.dataset.tab === 'logs') loadAuditLogs();
         });
     });
+
+    // --- Gallery Logic ---
+    function loadGallery() {
+        // For now, it's placeholders, but we could fetch from /img folder or an API
+        console.log('Gallery tab activated');
+    }
 
     // --- View Toggles & Filters ---
     const btnListView = document.getElementById('btn-list-view');
@@ -272,10 +279,10 @@
 
     function getStatusColor(status) {
         switch (status) {
-            case 'completed': return '#1b5e20';
-            case 'cancelled': return '#b71c1c';
-            case 'pending': return '#333';
-            default: return 'var(--gold)';
+            case 'completed': return '#48BB78'; // Suceso
+            case 'cancelled': return '#F56565'; // Falha
+            case 'pending': return '#718096'; // Pendente
+            default: return '#B76E79'; // Rose Copper (Padrão)
         }
     }
 
@@ -621,36 +628,47 @@
     const serviceForm = document.getElementById('service-form');
 
     async function loadServices() {
-        const tbody = document.getElementById('services-list');
-        if (!tbody) return;
+        const grid = document.getElementById('services-grid');
+        if (!grid) return;
 
         try {
             const res = await fetch(`${API_URL}/services`);
             const services = await res.json();
 
-            tbody.innerHTML = ''; // Clear previous items
+            grid.innerHTML = ''; // Clear previous items
             if (!Array.isArray(services)) return;
 
             services.forEach(svc => {
-                const tr = document.createElement('tr');
-                const photo = svc.image_url
-                    ? `<img src="${svc.image_url}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border);">`
-                    : `<div style="width: 40px; height: 40px; background: #222; display: flex; align-items: center; justify-content: center; border-radius: 4px; border: 1px solid var(--border);">🖼️</div>`;
+                const card = document.createElement('div');
+                card.className = 'stat-card';
+                card.style.padding = '15px';
+                card.style.display = 'flex';
+                card.style.flexDirection = 'column';
+                card.style.gap = '15px';
 
-                tr.innerHTML = `
-                    <td>${photo}</td>
-                    <td>${svc.name}</td>
-                    <td>R$ ${parseFloat(svc.price || 0).toFixed(2)}</td>
-                    <td>
-                        <button class="action-btn" onclick='editService(${JSON.stringify(svc)})'>✏️</button>
-                        <button class="action-btn" onclick="deleteService(${svc.id})">🗑️</button>
-                    </td>
+                const photo = svc.image_url
+                    ? `<img src="${svc.image_url}" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 6px;">`
+                    : `<div style="width: 100%; aspect-ratio: 16/9; background: #222; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: 1px dashed var(--border); font-size: 2rem;">🖼️</div>`;
+
+                card.innerHTML = `
+                    ${photo}
+                    <div>
+                        <h4 style="margin: 0; font-size: 1rem; color: var(--rose);">${svc.name}</h4>
+                        <p style="font-size: 0.8rem; color: var(--muted); margin: 5px 0 10px; min-height: 2.4em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${svc.description || 'Sem descrição'}</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 700; color: var(--cloud);">R$ ${parseFloat(svc.price || 0).toFixed(2)}</span>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="action-btn" onclick='editService(${JSON.stringify(svc)})'>✏️</button>
+                                <button class="action-btn" onclick="deleteService(${svc.id})">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
                 `;
-                tbody.appendChild(tr);
+                grid.appendChild(card);
             });
         } catch (err) {
             console.error('Error loading services:', err);
-            tbody.innerHTML = '<tr><td colspan="4">Erro ao carregar serviços.</td></tr>';
+            grid.innerHTML = '<p>Erro ao carregar serviços.</p>';
         }
     }
 
@@ -1024,72 +1042,204 @@
     });
 
     // --- Settings Logic ---
+    // --- Layout & System Manager Logic ---
     async function loadSettings() {
         try {
-            const res = await fetch(`${API_URL}/settings`);
-            const settings = await res.json();
+            // Priority: Local (unsaved changes/demo) > Server API
+            let settings = {};
+            const localSaved = localStorage.getItem('tata_settings');
 
-            const logoUrlInput = document.getElementById('site-logo-url');
-            const logoPreview = document.getElementById('site-logo-preview');
-
-            if (settings.site_logo) {
-                logoUrlInput.value = settings.site_logo;
-                updateLogoPreview(settings.site_logo);
+            if (localSaved) {
+                settings = JSON.parse(localSaved);
+            } else {
+                const res = await fetch(`${API_URL}/settings`);
+                const data = await res.json();
+                settings = data.settings || {};
             }
+
+            // Map fields to UI
+            if (document.getElementById('set-site-title')) document.getElementById('set-site-title').value = settings.site_title || 'Tata Nail | Especialista em Unhas Premium';
+            if (document.getElementById('set-about-text')) document.getElementById('set-about-text').value = settings.about_text || '';
+            if (document.getElementById('set-contact-phone')) document.getElementById('set-contact-phone').value = settings.contact_phone || '(11) 99999-9999';
+            if (document.getElementById('set-opening')) document.getElementById('set-opening').value = settings.opening_time || '09:00';
+            if (document.getElementById('set-closing')) document.getElementById('set-closing').value = settings.closing_time || '19:00';
+
+            // CMS v3: Notices & Policies
+            if (document.getElementById('set-site-notice')) document.getElementById('set-site-notice').value = settings.site_notice || '';
+            if (document.getElementById('set-cancel-policy')) document.getElementById('set-cancel-policy').value = settings.cancel_policy || '';
+            if (document.getElementById('set-show-policy')) document.getElementById('set-show-policy').checked = !!settings.show_policy;
+
+            if (document.getElementById('set-primary-color')) {
+                const color = settings.primary_color || '#B76E79';
+                document.getElementById('set-primary-color').value = color;
+                document.getElementById('set-primary-color-text').value = color.toUpperCase();
+            }
+
+            if (document.getElementById('set-font-style')) document.getElementById('set-font-style').value = settings.font_style || 'default';
+            if (document.getElementById('site-logo-url')) {
+                document.getElementById('site-logo-url').value = settings.site_logo || '✨';
+                updateLogoPreview(settings.site_logo || '✨');
+            }
+
+            // CMS v3: Dynamic Tabs UI Sync
+            if (settings.tabs_config) {
+                settings.tabs_config.forEach(tab => {
+                    const input = document.querySelector(`#tabs-manager input[type="text"][data-id="${tab.id}"]`);
+                    const checkbox = document.querySelector(`#tabs-manager input[type="checkbox"][data-id="${tab.id}"]`);
+                    if (input) input.value = tab.label;
+                    if (checkbox) checkbox.checked = tab.visible;
+                });
+            }
+            renderDynamicTabs(settings.tabs_config);
+
+            // CMS v3: Dashboard Cards Sync
+            if (settings.dash_cards) {
+                const cards = settings.dash_cards;
+                if (document.getElementById('dash-card-today-title')) document.getElementById('dash-card-today-title').value = cards.today_title || 'Agendamentos Hoje';
+                if (document.getElementById('dash-card-today-icon')) document.getElementById('dash-card-today-icon').value = cards.today_icon || '📅';
+                if (document.getElementById('dash-card-week-title')) document.getElementById('dash-card-week-title').value = cards.week_title || 'Esta Semana';
+                if (document.getElementById('dash-card-week-icon')) document.getElementById('dash-card-week-icon').value = cards.week_icon || '📊';
+                if (document.getElementById('dash-card-month-title')) document.getElementById('dash-card-month-title').value = cards.month_title || 'Este Mês';
+                if (document.getElementById('dash-card-month-icon')) document.getElementById('dash-card-month-icon').value = cards.month_icon || '📈';
+                if (document.getElementById('dash-card-revenue-title')) document.getElementById('dash-card-revenue-title').value = cards.revenue_title || 'Receita Total';
+                if (document.getElementById('dash-card-revenue-icon')) document.getElementById('dash-card-revenue-icon').value = cards.revenue_icon || '💰';
+
+                // Apply titles to Dashboard Tab
+                const dTabs = document.getElementById('tab-dashboard');
+                if (dTabs) {
+                    const titles = dTabs.querySelectorAll('.stat-card h3');
+                    if (titles.length >= 4) {
+                        titles[0].innerHTML = `${cards.today_icon || '📅'} ${cards.today_title || 'Agendamentos Hoje'}`;
+                        titles[1].innerHTML = `${cards.week_icon || '📊'} ${cards.week_title || 'Esta Semana'}`;
+                        titles[2].innerHTML = `${cards.month_icon || '📈'} ${cards.month_title || 'Este Mês'}`;
+                        titles[3].innerHTML = `${cards.revenue_icon || '💰'} ${cards.revenue_title || 'Receita Total'}`;
+                    }
+                }
+            }
+
+            // Sync color picker text
+            const pcol = document.getElementById('set-primary-color');
+            const ptat = document.getElementById('set-primary-color-text');
+            if (pcol && ptat) {
+                pcol.oninput = (e) => ptat.value = e.target.value.toUpperCase();
+                ptat.onchange = (e) => pcol.value = e.target.value;
+            }
+
         } catch (err) {
             console.error('Error loading settings:', err);
         }
     }
 
-    function updateLogoPreview(value) {
-        const logoPreview = document.getElementById('site-logo-preview');
-        if (!value) {
-            logoPreview.innerHTML = '💅';
-            return;
-        }
+    function renderDynamicTabs(config) {
+        if (!config || config.length === 0) return;
+        const tabContainer = document.querySelector('.tabs');
+        if (!tabContainer) return;
 
-        // Check if it's a URL or emoji (simple check)
-        if (value.startsWith('http') || value.startsWith('/img/') || value.startsWith('data:')) {
-            logoPreview.innerHTML = `<img src="${value}" style="width: 100%; height: 100%; object-fit: cover;">`;
-        } else {
-            logoPreview.innerHTML = value;
-        }
+        tabContainer.innerHTML = '';
+        config.forEach(tab => {
+            if (tab.visible) {
+                const btn = document.createElement('button');
+                btn.className = 'tab-btn';
+                btn.dataset.tab = tab.id;
+                btn.innerText = tab.label;
+                btn.onclick = () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+                    btn.classList.add('active');
+                    const target = document.getElementById(`tab-${tab.id}`);
+                    if (target) target.classList.remove('hidden');
+                };
+                tabContainer.appendChild(btn);
+            }
+        });
+
+        // Set Dashboard active by default if visible
+        const dashBtn = tabContainer.querySelector('[data-tab="dashboard"]');
+        if (dashBtn) dashBtn.click();
     }
 
-    document.getElementById('site-logo-url').addEventListener('input', (e) => {
-        updateLogoPreview(e.target.value);
-    });
-
     document.getElementById('save-settings-btn').addEventListener('click', async () => {
-        const logo = document.getElementById('site-logo-url').value;
         const btn = document.getElementById('save-settings-btn');
+        const settings = {
+            site_title: document.getElementById('set-site-title').value,
+            about_text: document.getElementById('set-about-text').value,
+            contact_phone: document.getElementById('set-contact-phone').value,
+            opening_time: document.getElementById('set-opening').value,
+            closing_time: document.getElementById('set-closing').value,
+            primary_color: document.getElementById('set-primary-color').value,
+            font_style: document.getElementById('set-font-style').value,
+            site_logo: document.getElementById('site-logo-url').value,
+            site_notice: document.getElementById('set-site-notice').value,
+            cancel_policy: document.getElementById('set-cancel-policy').value,
+            show_policy: document.getElementById('set-show-policy').checked,
+            off_days: Array.from(document.getElementById('set-off-days').selectedOptions).map(o => o.value),
+            tabs_config: Array.from(document.querySelectorAll('#tabs-manager .action-btn')).map(row => {
+                const input = row.querySelector('input[type="text"]');
+                const checkbox = row.querySelector('input[type="checkbox"]');
+                return {
+                    id: input.dataset.id,
+                    label: input.value,
+                    visible: checkbox.checked
+                };
+            }),
+            dash_cards: {
+                today_title: document.getElementById('dash-card-today-title').value,
+                today_icon: document.getElementById('dash-card-today-icon').value,
+                week_title: document.getElementById('dash-card-week-title').value,
+                week_icon: document.getElementById('dash-card-week-icon').value,
+                month_title: document.getElementById('dash-card-month-title').value,
+                month_icon: document.getElementById('dash-card-month-icon').value,
+                revenue_title: document.getElementById('dash-card-revenue-title').value,
+                revenue_icon: document.getElementById('dash-card-revenue-icon').value
+            }
+        };
 
         btn.disabled = true;
-        btn.textContent = 'Salvando...';
+        btn.textContent = 'Publicando...';
 
         try {
-            const res = await fetch(`${API_URL}/settings`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${currentToken}`
-                },
-                body: JSON.stringify({ settings: { site_logo: logo } })
-            });
+            // Save to LocalStorage for immediate demo effect
+            localStorage.setItem('tata_settings', JSON.stringify(settings));
+            renderDynamicTabs(settings.tabs_config);
 
-            if (res.ok) {
-                alert('Configurações salvas!');
-            } else {
-                alert('Erro ao salvar');
+            // Sync with Server if currentToken exists
+            if (currentToken) {
+                await fetch(`${API_URL}/settings`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify({ settings })
+                });
             }
+
+            showToast('Alterações publicadas com sucesso! ✨');
         } catch (err) {
             console.error(err);
-            alert('Erro de conexão');
+            showToast('Salvo localmente, erro ao sincronizar com servidor.', 'warning');
         } finally {
             btn.disabled = false;
-            btn.textContent = 'Salvar Alterações';
+            btn.textContent = 'Publicar Alterações';
         }
     });
+
+    function showToast(msg, type = 'success') {
+        const toast = document.createElement('div');
+        toast.style.position = 'fixed';
+        toast.style.bottom = '20px';
+        toast.style.right = '20px';
+        toast.style.padding = '12px 25px';
+        toast.style.borderRadius = '8px';
+        toast.style.background = type === 'success' ? '#48BB78' : '#F56565';
+        toast.style.color = 'white';
+        toast.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+        toast.style.zIndex = '10000';
+        toast.style.fontWeight = '600';
+        toast.innerText = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
 
     window.openImageSelector = async () => {
         const modal = document.getElementById('image-selector-modal');

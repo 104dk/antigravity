@@ -4,14 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tata Nail | Beleza & Elegância</title>
+    <title>Tata Nail | Especialista em Unhas Premium</title>
+    <!-- SEO -->
     <meta name="description"
-        content="Experimente o luxo e o cuidado que você merece na Tata Nail. Manicure, pedicure e tratamentos exclusivos.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        content="Tata Nail - Especialista em alongamentos, barbanho de gel e nail art em Luziânia. Agende sua visita e realce sua beleza.">
+    <!-- Google Fonts -->
     <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@400;600;700;800&display=swap"
         rel="stylesheet">
+    <!-- Styles -->
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -19,44 +20,41 @@
 
     <!-- HEADER -->
     <header id="main-header">
-        <div class="container">
-            <a href="#" class="logo"><span id="header-logo" class="site-icon"></span> Tata Nail</a>
-            <nav>
-                <button id="mobile-menu-btn" aria-label="Abrir menu">
-                    <span></span><span></span><span></span>
-                </button>
+        <div class="container header-content">
+            <div class="logo">
+                <span class="logo-text">Tata<span class="text-rose">Nail</span></span>
+            </div>
+            <nav id="nav-container">
                 <ul id="nav-list">
-                    <li><a href="#hero">Início</a></li>
+                    <li><a href="#gallery">Galeria</a></li>
                     <li><a href="#services">Serviços</a></li>
                     <li><a href="#about">Sobre</a></li>
-                    <li><a href="#contact">Contato</a></li>
                     <li><a href="#booking" class="btn-nav">Agendar</a></li>
                 </ul>
+                <button id="mobile-menu-btn" aria-label="Abrir Menu">
+                    <span></span><span></span><span></span>
+                </button>
             </nav>
         </div>
     </header>
 
     <main>
-
-        <!-- HERO -->
-        <section id="hero">
-            <div class="hero-overlay"></div>
-            <div class="container hero-layout">
-                <div class="hero-text">
-                    <div class="hero-badges">
-                        <span>Profissionais <strong>Experts</strong></span>
-                        <span>Produtos <strong>Premium</strong></span>
-                        <span>Atendimento <strong>VIP</strong></span>
-                    </div>
-                    <h1><span id="hero-logo" class="site-icon"></span><span class="text-gold">Tata</span> Nail</h1>
-                    <p class="hero-subtitle">Beleza e Elegância que Realçam sua Melhor Versão</p>
-                    <div class="hero-buttons">
-                        <a href="#booking" class="btn-primary">Agendar Agora →</a>
-                        <a href="https://wa.me/5561993602116" target="_blank" class="btn-outline">WhatsApp</a>
-                    </div>
+        <!-- GALLERY SECTION (REPLACES HERO) -->
+        <section id="gallery">
+            <div class="container">
+                <div class="gallery-intro">
+                    <h1>Sua beleza em <span class="text-rose">primeiro plano.</span></h1>
+                    <p>Confira nossos trabalhos mais recentes e inspire-se para sua próxima visita.</p>
                 </div>
-                <div class="hero-image">
-                    <div class="hero-img-frame"></div>
+                <div class="gallery-grid">
+                    <div class="gallery-item"><img src="img/servico1.png" alt="Unhas trabalhadas 1"></div>
+                    <div class="gallery-item"><img src="img/servico2.png" alt="Unhas trabalhadas 2"></div>
+                    <div class="gallery-item"><img src="img/servico3.png" alt="Unhas trabalhadas 3"></div>
+                    <div class="gallery-item"><img src="img/servico4.png" alt="Unhas trabalhadas 4"></div>
+                    <div class="gallery-item"><img src="img/servico5.png" alt="Unhas trabalhadas 5"></div>
+                    <div class="gallery-item"><img src="img/servico6.png" alt="Unhas trabalhadas 6"></div>
+                    <div class="gallery-item"><img src="img/servico7.png" alt="Unhas trabalhadas 7"></div>
+                    <div class="gallery-item"><img src="img/servico8.png" alt="Unhas trabalhadas 8"></div>
                 </div>
             </div>
         </section>
@@ -65,79 +63,50 @@
         <section id="services">
             <div class="container">
                 <div class="section-header">
-                    <span class="section-deco">◆</span>
-                    <h2>Nossos <span class="text-gold">Serviços</span></h2>
-                    <span class="section-deco">◆</span>
+                    <span class="section-subtitle">O que fazemos</span>
+                    <h2>Nossos <span class="text-rose">Serviços</span></h2>
                 </div>
-                <!-- JS populates this — starts empty, no skeleton divs -->
-                <div class="services-grid" id="services-container">
+                <!-- Dynamic Content via API -->
+                <div id="services-container" class="services-grid">
                     <p class="loading-msg">Carregando serviços...</p>
                 </div>
             </div>
         </section>
 
-        <!-- CTA STRIP -->
-        <section id="cta-strip">
-            <div class="container cta-layout">
-                <div class="cta-stats">
-                    <div class="cta-stat">
-                        <span class="cta-stat-icon">⭐</span>
-                        <div>
-                            <strong>Avaliação</strong>
-                            <span>5 estrelas ★★★★★</span>
-                        </div>
-                    </div>
-                    <div class="cta-stat">
-                        <span class="cta-stat-icon">👩‍💼</span>
-                        <div>
-                            <strong>Atendimento</strong>
-                            <span>Premium</span>
-                        </div>
-                    </div>
-                    <div class="cta-stat">
-                        <span class="cta-stat-icon">🏠</span>
-                        <div>
-                            <strong>Ambiente</strong>
-                            <span>Aconchegante</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="cta-action">
-                    <h3>Pronta para <span class="text-gold">Brilhar?</span></h3>
-                    <p>Agende seu horário e transforme seu visual!</p>
-                    <a href="#booking" class="btn-primary">Agendar Agora →</a>
-                </div>
-            </div>
-        </section>
-
-        <!-- ABOUT (INSTAGRAM FEED) -->
+        <!-- ABOUT -->
         <section id="about">
-            <div class="container">
-                <div class="section-header">
-                    <span class="section-deco">◆</span>
-                    <h2>Sobre o <span class="text-gold">Estabelecimento</span></h2>
-                    <span class="section-deco">◆</span>
+            <div class="container about-layout">
+                <div class="about-image">
+                    <img src="img/tatanails.jpg" alt="Tata Nail Studio">
                 </div>
                 <div class="about-content">
-                    <div class="about-text">
-                        <p>Na <strong>Tata Nail</strong>, acreditamos que a beleza está nos detalhes. Com anos de
-                            experiência no mercado de estética, nossa missão é proporcionar não apenas um serviço, mas
-                            uma experiência de cuidado e auto-estima.</p>
-                        <p>Nosso espaço foi projetado para ser seu refúgio de elegância, onde cada cliente recebe um
-                            atendimento VIP e personalizado.</p>
-                        <div class="about-insta-link">
-                            <a href="https://www.instagram.com/tata_nail_luziania/" target="_blank"
-                                class="btn-outline">Ver Instagram completo</a>
+                    <div class="section-header align-left">
+                        <span class="section-subtitle">Conheça-nos</span>
+                        <h2>Excelência em <span class="text-rose">Cada Detalhe</span></h2>
+                    </div>
+                    <p>Na Tata Nail, transformamos o cuidado com as unhas em uma experiência de autoestima. Combinamos
+                        técnica de ponta com um ambiente acolhedor para entregar resultados que encantam.</p>
+
+                    <div class="branding-items">
+                        <div class="brand-item">
+                            <span class="brand-icon">✨</span>
+                            <div class="brand-text">
+                                <strong>Qualidade Premium</strong>
+                                <span>Produtos selecionados das melhores marcas.</span>
+                            </div>
+                        </div>
+                        <div class="brand-item">
+                            <span class="brand-icon">🎨</span>
+                            <div class="brand-text">
+                                <strong>Nail Art Exclusiva</strong>
+                                <span>Designers especialistas em detalhes únicos.</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="insta-mock-grid">
-                        <div class="insta-item" id="insta-1"></div>
-                        <div class="insta-item" id="insta-2"></div>
-                        <div class="insta-item" id="insta-3"></div>
-                        <div class="insta-item" id="insta-4"></div>
-                        <div class="insta-item" id="insta-5"></div>
-                        <div class="insta-item" id="insta-6"></div>
-                    </div>
+
+                    <a href="https://www.instagram.com/tata_nail_luziania/" target="_blank" class="btn-outline">
+                        Siga no Instagram
+                    </a>
                 </div>
             </div>
         </section>
@@ -145,59 +114,69 @@
         <!-- BOOKING -->
         <section id="booking">
             <div class="container">
-                <div class="booking-wrapper">
-                    <h2>Agende sua <span class="text-gold">Visita</span></h2>
-                    <p class="booking-sub">Preencha o formulário e entraremos em contato para confirmar seu horário.</p>
+                <div class="booking-card">
+                    <div class="booking-intro">
+                        <h2>Agende seu <span class="text-rose">Momento</span></h2>
+                        <p>Escolha o melhor dia e horário para você brilhar.</p>
+                    </div>
+
                     <form id="booking-form">
-                        <div class="form-group">
-                            <label for="name">Nome Completo</label>
-                            <input type="text" id="name" name="name" required placeholder="Seu nome">
-                        </div>
-                        <div class="form-group">
-                            <label for="phone">Telefone</label>
-                            <input type="tel" id="phone" name="phone" required placeholder="(11) 99999-9999"
-                                maxlength="15">
-                        </div>
-                        <div class="form-group">
-                            <label for="service">Serviço Desejado</label>
-                            <select id="service" name="service" required>
-                                <option value="" disabled selected>Selecione um serviço</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="date">Data Preferencial</label>
-                            <input type="date" id="date" name="date" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Horário Disponível</label>
-                            <div id="time-slots" class="time-slots-grid">
-                                <p class="text-muted">Selecione uma data para ver os horários.</p>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="name">Nome completo</label>
+                                <input type="text" id="name" name="name" required placeholder="Digite seu nome">
                             </div>
-                            <input type="hidden" id="selected-time" name="time" required>
+                            <div class="form-group">
+                                <label for="phone">WhatsApp</label>
+                                <input type="tel" id="phone" name="phone" required placeholder="(00) 00000-0000">
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="service">Serviço</label>
+                                <select id="service" name="service" required>
+                                    <option value="" disabled selected>Selecione um serviço</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="date">Data</label>
+                                <input type="date" id="date" name="date" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Horário</label>
+                                <div id="time-slots-container">
+                                    <div id="time-slots" class="slots-grid">
+                                        <p class="placeholder">Selecione uma data acima</p>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="selected-time" name="time" required>
+                            </div>
                         </div>
-                        <button type="submit" id="submit-btn" class="btn-primary btn-block">Solicitar
-                            Agendamento</button>
+                        <button type="submit" id="submit-btn" class="btn-primary full-width">
+                            Solicitar Agendamento
+                        </button>
                     </form>
                 </div>
             </div>
         </section>
-
     </main>
 
     <!-- FOOTER -->
     <footer id="contact">
-        <div class="container footer-layout">
+        <div class="container footer-grid">
             <div class="footer-brand">
-                <h3>Tata Nail</h3>
-                <p>Rua 43 Quadra 149</p>
-                <p>Luziânia - GO</p>
-                <p>(61) 98285-3421</p>
-                <p>contato@tatanail.com.br</p>
+                <span class="logo-text">Tata<span class="text-rose">Nail</span></span>
+                <p>Realçando sua elegância, uma unha por vez.</p>
             </div>
-            <div class="footer-links">
-                <a href="#" target="_blank">Instagram</a>
-                <a href="#" target="_blank">Facebook</a>
-                <a href="https://wa.me/5561993602116" target="_blank">WhatsApp</a>
+            <div class="footer-contact">
+                <h4>Contato</h4>
+                <p>📍 Luziânia - GO</p>
+                <p>📞 (61) 98285-3421</p>
+            </div>
+            <div class="footer-social">
+                <h4>Redes Sociais</h4>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/tata_nail_luziania/" target="_blank">Instagram</a>
+                    <a href="https://wa.me/5561993602116" target="_blank">WhatsApp</a>
+                </div>
             </div>
         </div>
         <div class="footer-bottom">

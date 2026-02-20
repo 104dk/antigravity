@@ -29,7 +29,11 @@ if (window.__tataNailInit) {
         const header = document.getElementById('main-header');
         if (header) {
             window.addEventListener('scroll', () => {
-                header.style.padding = window.scrollY > 50 ? '10px 0' : '16px 0';
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
             });
         }
 
@@ -52,73 +56,60 @@ if (window.__tataNailInit) {
         const container = document.getElementById('services-container');
         const svcSelect = document.getElementById('service');
 
-        function loadServices() {
-            if (servicesLoaded) return;   // hard guard
-            servicesLoaded = true;
+        const defaultServices = [
+            { name: 'Pé e Mão', price: 60, duration: '90min', description: 'Cuidado completo para suas unhas com acabamento impecável.' },
+            { name: 'Alongamento em Gel', price: 150, duration: '120min', description: 'Unhas longas, resistentes e com brilho duradouro.' },
+            { name: 'Banho de Cristal', price: 120, duration: '60min', description: 'Proteção e brilho extra para suas unhas naturais.' },
+            { name: 'Esmaltação em Gel', price: 80, duration: '45min', description: 'Cor vibrante que não descasca por até 15 dias.' }
+        ];
 
+        function renderList(list) {
+            container.innerHTML = '';
+            if (svcSelect) svcSelect.innerHTML = '<option value="" disabled selected>Selecione um serviço</option>';
+
+            if (!Array.isArray(list) || list.length === 0) {
+                container.innerHTML = '<p class="loading-msg">Nenhum serviço disponível no momento.</p>';
+                return;
+            }
+
+            list.forEach((svc, index) => {
+                const price = parseFloat(svc.price || 0).toFixed(2).replace('.', ',');
+                const card = document.createElement('div');
+                card.className = 'service-card';
+                const icons = ['💅', '👣', '✨', '👑', '🌸', '🎨', '🌟', '💎'];
+                const icon = icons[index % icons.length];
+
+                card.innerHTML = `
+                    <div class="service-icon">${icon}</div>
+                    <h3>${svc.name}</h3>
+                    <p>${svc.description || 'Tratamento exclusivo personalizado para você.'}</p>
+                    <div class="service-footer">
+                        <span class="price">R$ ${price}</span>
+                        <span class="time">⏱ ${svc.duration || '60min'}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+
+                if (svcSelect) {
+                    const opt = document.createElement('option');
+                    opt.value = svc.name;
+                    opt.textContent = svc.name;
+                    svcSelect.appendChild(opt);
+                }
+            });
+        }
+
+        function loadServices() {
+            if (servicesLoaded) return;
+            servicesLoaded = true;
             if (!container) return;
 
             fetch('/api/services')
                 .then(r => r.json())
-                .then(list => {
-                    // Wipe everything (loading message + any stale content)
-                    container.innerHTML = '';
-
-                    // Reset select to only the placeholder
-                    if (svcSelect) {
-                        svcSelect.innerHTML = '<option value="" disabled selected>Selecione um serviço</option>';
-                    }
-
-                    if (!Array.isArray(list) || list.length === 0) {
-                        container.innerHTML = '<p class="loading-msg">Nenhum serviço disponível no momento.</p>';
-                        return;
-                    }
-
-                    list.forEach(svc => {
-                        const price = parseFloat(svc.price || 0)
-                            .toFixed(2)
-                            .replace('.', ',');
-
-                        // Card
-                        const card = document.createElement('div');
-                        card.className = 'service-card';
-
-                        const photoContent = svc.image_url
-                            ? `<img src="${svc.image_url}" alt="${svc.name}">`
-                            : `<div class="service-photo-inner">💅</div>`;
-
-                        card.innerHTML = `
-                            <div class="service-photo">
-                                ${photoContent}
-                            </div>
-                            <div class="service-body">
-                                <h3>${svc.name}</h3>
-                                <p>${svc.description || ''}</p>
-                                <div class="service-footer">
-                                    <div class="service-price">
-                                        <small>A partir de</small>
-                                        <strong>R$ ${price}</strong>
-                                    </div>
-                                    <a href="#booking" class="btn-saiba">Saiba Mais →</a>
-                                </div>
-                            </div>
-                        `;
-                        container.appendChild(card);
-
-                        // Select option (added once per service)
-                        if (svcSelect) {
-                            const opt = document.createElement('option');
-                            opt.value = svc.name;
-                            opt.textContent = svc.name;
-                            svcSelect.appendChild(opt);
-                        }
-                    });
-                })
+                .then(list => renderList(list))
                 .catch(err => {
-                    console.error('Erro ao carregar serviços:', err);
-                    if (container) {
-                        container.innerHTML = '<p class="loading-msg">Erro ao carregar serviços. Tente novamente.</p>';
-                    }
+                    console.error('API fail, using fallback:', err);
+                    renderList(defaultServices);
                 });
         }
 
