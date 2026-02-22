@@ -4,7 +4,11 @@ if (window.__tataNailInit) {
 } else {
     window.__tataNailInit = true;
 
-    document.addEventListener('DOMContentLoaded', init);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 
     function init() {
 
@@ -123,6 +127,20 @@ if (window.__tataNailInit) {
                 div.innerHTML = `<img src="${item.image_url}" alt="${item.alt_text || item.title || 'Unhas trabalhadas'}">`;
                 galleryContainer.appendChild(div);
             });
+        }
+
+        function loadServices() {
+            if (servicesLoaded) return;
+            fetch('/api/services')
+                .then(r => r.json())
+                .then(data => {
+                    renderList(data);
+                    servicesLoaded = true;
+                })
+                .catch(err => {
+                    console.error('Services API fail:', err);
+                    renderList(defaultServices); // Fallback
+                });
         }
 
         function loadGallery() {
@@ -294,9 +312,9 @@ if (window.__tataNailInit) {
                     const galleryTitle = document.querySelector('#gallery h1');
                     const gallerySubtitle = document.querySelector('#gallery p');
                     if (settings.gallery_hero_title && galleryTitle) {
-                        // Tratar <span class="text-rose"> se estiver no texto? 
-                        // Por segurança, vamos usar innerHTML se o usuário quiser formatar
-                        galleryTitle.innerHTML = settings.gallery_hero_title.replace('primeiro plano', '<span class="text-rose">primeiro plano</span>');
+                        galleryTitle.innerHTML = settings.gallery_hero_title.includes('primeiro plano')
+                            ? settings.gallery_hero_title.replace('primeiro plano', '<span class="text-rose">primeiro plano</span>')
+                            : settings.gallery_hero_title;
                     }
                     if (settings.gallery_hero_subtitle && gallerySubtitle) {
                         gallerySubtitle.textContent = settings.gallery_hero_subtitle;
@@ -306,7 +324,9 @@ if (window.__tataNailInit) {
                     const aboutTitle = document.querySelector('#about h2');
                     const aboutText = document.querySelector('#about p');
                     if (settings.about_title && aboutTitle) {
-                        aboutTitle.innerHTML = settings.about_title.replace('Cada Detalhe', '<span class="text-rose">Cada Detalhe</span>');
+                        aboutTitle.innerHTML = settings.about_title.includes('Cada Detalhe')
+                            ? settings.about_title.replace('Cada Detalhe', '<span class="text-rose">Cada Detalhe</span>')
+                            : settings.about_title;
                     }
                     if (settings.about_text && aboutText) {
                         aboutText.textContent = settings.about_text;
