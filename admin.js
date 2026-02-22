@@ -728,6 +728,72 @@
         });
     }
 
+    // URL input logic
+    const svcImageInput = document.getElementById('svc-image');
+    if (svcImageInput) {
+        svcImageInput.addEventListener('input', (e) => {
+            const url = e.target.value.trim();
+            if (url && (url.startsWith('http') || url.startsWith('/img/'))) {
+                imagePreview.innerHTML = `<img src="${url}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            } else if (!url) {
+                imagePreview.innerHTML = '🖼️';
+            }
+        });
+    }
+
+    // Auto-link logic
+    document.getElementById('auto-link-btn').addEventListener('click', async () => {
+        if (!confirm('Deseja vincular fotos da pasta /img aos serviços automaticamente baseado nos nomes?')) return;
+
+        const btn = document.getElementById('auto-link-btn');
+        btn.disabled = true;
+        btn.textContent = 'Processando...';
+
+        try {
+            // Get all local images
+            const imgRes = await fetch(`${API_URL}/admin/images`, {
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
+            const images = await imgRes.json();
+
+            // Get all services
+            const svcRes = await fetch(`${API_URL}/services`);
+            const services = await svcRes.json();
+
+            let count = 0;
+            for (const svc of services) {
+                if (!svc.image_url) {
+                    // Try to find a matching image
+                    const match = images.find(img => {
+                        const name = svc.name.toLowerCase();
+                        const imgName = img.name.toLowerCase();
+                        return imgName.includes(name) || name.includes(imgName.split('.')[0]);
+                    });
+
+                    if (match) {
+                        await fetch(`${API_URL}/services/${svc.id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${currentToken}`
+                            },
+                            body: JSON.stringify({ ...svc, image_url: match.url })
+                        });
+                        count++;
+                    }
+                }
+            }
+            alert(`${count} serviços foram vinculados a fotos com sucesso!`);
+            loadServices();
+        } catch (err) {
+            console.error(err);
+            alert('Erro ao processar vínculo automático');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Vincular Fotos Auto';
+        }
+    });
+
     // Modals are closed via inline onclick for consistency in HTML
 
     serviceForm.addEventListener('submit', async (e) => {

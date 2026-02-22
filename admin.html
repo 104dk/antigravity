@@ -772,7 +772,10 @@
                         <p style="color: var(--muted); font-size: 0.9rem;">Gerencie as fotos, preços e descrições dos
                             serviços oferecidos.</p>
                     </div>
-                    <button id="add-service-btn" class="btn-primary" style="width: auto;">Novo Serviço</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-outline" id="auto-link-btn" style="width: auto;">Vincular Fotos Auto</button>
+                        <button id="add-service-btn" class="btn-primary" style="width: auto;">Novo Serviço</button>
+                    </div>
                 </div>
 
                 <div id="services-grid"
@@ -1065,7 +1068,8 @@
                                 <button type="button" class="btn-outline" id="btn-open-gallery"
                                     style="padding: 8px 12px; font-size: 0.75rem; flex: 1;">Biblioteca</button>
                             </div>
-                            <input type="hidden" id="svc-image">
+                            <input type="text" id="svc-image" placeholder="Ou cole o link da imagem aqui..."
+                                style="font-size: 0.8rem; padding: 10px;">
                             <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">Formatos aceitos:
                                 JPG, PNG. Recomendado: 400x400px.</p>
                         </div>

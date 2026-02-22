@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const fs = require('fs');
 const path = require('path');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -275,7 +276,7 @@ app.get('/api/settings', async (req, res) => {
 
 // Admin Update Settings
 app.put('/api/settings', authenticateToken, requireAdmin, async (req, res) => {
-    const { settings } = req.body; 
+    const { settings } = req.body;
     if (!settings || typeof settings !== 'object') return res.status(400).json({ error: 'Configurações inválidas' });
 
     try {
@@ -617,6 +618,22 @@ app.post('/api/auth/change-password', authenticateToken, async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+});
+
+// Images in /img folder
+app.get('/api/admin/images', authenticateToken, (req, res) => {
+    const imgDir = path.join(__dirname, 'img');
+    fs.readdir(imgDir, (err, files) => {
+        if (err) return res.status(500).json({ error: 'Erro ao ler diretório de imagens' });
+
+        const images = files
+            .filter(file => ['.png', '.jpg', '.jpeg', '.gif', '.webp'].includes(path.extname(file).toLowerCase()))
+            .map(file => ({
+                name: file,
+                url: `/img/${file}`
+            }));
+        res.json(images);
+    });
 });
 
 // App Settings / One-time seed for default admin
