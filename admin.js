@@ -125,10 +125,93 @@
     });
 
     // --- Gallery Logic ---
-    function loadGallery() {
-        // For now, it's placeholders, but we could fetch from /img folder or an API
-        console.log('Gallery tab activated');
+    async function loadGallery() {
+        const grid = document.getElementById('admin-gallery-grid');
+        if (!grid) return;
+        grid.innerHTML = '<p>Carregando galeria...</p>';
+
+        try {
+            const res = await fetch(`${API_URL}/admin/images`, {
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
+            const images = await res.json();
+
+            grid.innerHTML = '';
+            images.forEach(img => {
+                const div = document.createElement('div');
+                div.className = 'stat-card';
+                div.style.padding = '10px';
+                div.style.textAling = 'center';
+                div.innerHTML = `
+                    <img src="${img.url}" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; margin-bottom: 10px;">
+                    <button class="action-btn" style="width: 100%; font-size: 0.7rem;" onclick="deleteGalleryImage('${img.name}')">🗑️ Remover</button>
+                `;
+                grid.appendChild(div);
+            });
+
+            if (images.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1;">Nenhuma foto na galeria local.</p>';
+            }
+        } catch (err) {
+            grid.innerHTML = '<p>Erro ao carregar galeria.</p>';
+        }
     }
+
+    window.deleteGalleryImage = async (filename) => {
+        if (!confirm('Tem certeza que deseja remover esta imagem da galeria local?')) return;
+        try {
+            const res = await fetch(`${API_URL}/gallery/${filename}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
+            if (res.ok) {
+                loadGallery();
+            } else {
+                alert('Erro ao remover imagem');
+            }
+        } catch (err) {
+            alert('Erro ao conectar com o servidor');
+        }
+    };
+
+    // Gallery Upload Logic
+    document.getElementById('add-gallery-photo-btn').addEventListener('click', () => {
+        document.getElementById('gallery-file-input').click();
+    });
+
+    document.getElementById('gallery-file-input').addEventListener('change', async (e) => {
+        if (!e.target.files.length) return;
+
+        const file = e.target.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const btn = document.getElementById('add-gallery-photo-btn');
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Enviando...';
+
+        try {
+            const res = await fetch(`${API_URL}/gallery/upload`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${currentToken}` },
+                body: formData
+            });
+
+            if (res.ok) {
+                loadGallery();
+                alert('Foto adicionada com sucesso!');
+            } else {
+                alert('Erro ao subir foto');
+            }
+        } catch (err) {
+            alert('Erro de conexão');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = originalText;
+            e.target.value = '';
+        }
+    });
 
     // --- View Toggles & Filters ---
     const btnListView = document.getElementById('btn-list-view');
@@ -345,6 +428,7 @@
                     <td>${formatDate(app.date)}<br><small>${app.time}</small></td>
                     <td>${app.name}<br><small>${app.phone}</small></td>
                     <td>${app.service}</td>
+                    <td>R$ ${(app.amount || 0).toFixed(2)}</td>
                     <td><span class="status-badge status-${app.status}">${translateStatus(app.status)}</span></td>
                     <td>
                         <button class="action-btn" onclick="updateStatus(${app.id}, 'completed')">✅</button>

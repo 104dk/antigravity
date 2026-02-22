@@ -35,6 +35,13 @@ const loginLimiter = rateLimit({
 
 // Middleware
 app.use(cors());
+app.use(fileUpload({
+    createParentPath: true,
+    useTempFiles: true,
+    tempFileDir: '/tmp/',
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+    debug: false // Set to true if still failing
+}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -88,6 +95,15 @@ app.post('/api/appointments', async (req, res) => {
     }
 
     try {
+        // Get service price for automatic amount
+        const { data: svcData } = await supabase
+            .from('services')
+            .select('price')
+            .eq('name', service)
+            .single();
+
+        const finalAmount = svcData ? svcData.price : (amount || 0);
+
         // Check for conflicts
         const { data: existingApp } = await supabase
             .from('appointments')
@@ -130,7 +146,7 @@ app.post('/api/appointments', async (req, res) => {
                 date,
                 time,
                 payment_method,
-                amount
+                amount: finalAmount
             }])
             .select()
             .single();
@@ -215,8 +231,16 @@ app.put('/api/services/:id', authenticateToken, async (req, res) => {
 
 // Image Upload Endpoint (admin)
 app.post('/api/upload', authenticateToken, async (req, res) => {
+    // Debug: res.status(400).json({ error: 'Files: ' + JSON.stringify(Object.keys(req.files || {})) }); 
     if (!req.files || Object.keys(req.files).length === 0) {
-        return res.status(400).json({ error: 'Nenhum arquivo enviado' });
+        const contentType = req.headers['content-type'];
+        return res.status(400).json({
+            error: 'Nenhum arquivo enviado',
+            debug: {
+                hasFiles: !!req.files,
+                contentType
+            }
+        });
     }
 
     const file = req.files.file;
@@ -623,6 +647,8 @@ app.post('/api/auth/change-password', authenticateToken, async (req, res) => {
 // Images in /img folder
 app.get('/api/admin/images', authenticateToken, (req, res) => {
     const imgDir = path.join(__dirname, 'img');
+    if (!fs.existsSync(imgDir)) return res.json([]);
+
     fs.readdir(imgDir, (err, files) => {
         if (err) return res.status(500).json({ error: 'Erro ao ler diretório de imagens' });
 
@@ -633,6 +659,37 @@ app.get('/api/admin/images', authenticateToken, (req, res) => {
                 url: `/img/${file}`
             }));
         res.json(images);
+    });
+});
+
+// Upload to local /img
+app.post('/api/gallery/upload', authenticateToken, (req, res) => {
+    if (!req.files || Object.keys(req.files).length === 0) {
+        return res.status(400).json({ error: 'Nenhum arquivo enviado', debug: { hasFiles: !!req.files, contentType: req.headers['content-type'] } });
+    }
+
+    const file = req.files.file;
+    const fileName = `${Date.now()}-${file.name.replace(/\s/g, '_')}`;
+    const uploadPath = path.join(__dirname, 'img', fileName);
+
+    file.mv(uploadPath, (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, url: `/img/${fileName}` });
+    });
+});
+
+// Delete local image
+app.delete('/api/gallery/:filename', authenticateToken, (req, res) => {
+    const fileName = req.params.filename;
+    const filePath = path.join(__dirname, 'img', fileName);
+
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ error: 'Arquivo não encontrado' });
+    }
+
+    fs.unlink(filePath, (err) => {
+        if (err) return res.status(500).json({ error: 'Erro ao remover arquivo' });
+        res.json({ success: true, message: 'Imagem removida' });
     });
 });
 

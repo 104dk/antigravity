@@ -696,28 +696,15 @@
                         <p style="color: var(--muted); font-size: 0.9rem;">Gerencie as fotos exibidas na página
                             principal.</p>
                     </div>
-                    <button class="btn-primary" style="width: auto;">Adicionar Foto</button>
+                    <button id="add-gallery-photo-btn" class="btn-primary" style="width: auto;">Adicionar Foto</button>
+                    <input type="file" id="gallery-file-input" style="display: none;" accept="image/*">
                 </div>
                 <div id="admin-gallery-grid"
                     style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px;">
-                    <!-- Placeholder for gallery management -->
-                    <div class="stat-card" style="padding: 10px; text-align: center;">
-                        <img src="img/servico1.png"
-                            style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; margin-bottom: 10px;">
-                        <button class="action-btn" style="width: 100%; font-size: 0.7rem;">Remover</button>
-                    </div>
-                    <div class="stat-card" style="padding: 10px; text-align: center;">
-                        <img src="img/servico2.png"
-                            style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; margin-bottom: 10px;">
-                        <button class="action-btn" style="width: 100%; font-size: 0.7rem;">Remover</button>
-                    </div>
-                    <div class="stat-card" style="padding: 10px; text-align: center;">
-                        <img src="img/servico3.png"
-                            style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; margin-bottom: 10px;">
-                        <button class="action-btn" style="width: 100%; font-size: 0.7rem;">Remover</button>
-                    </div>
-                    <!-- Mais fotos virão do JS futuramente -->
+                    <!-- Items rendered via JS -->
                 </div>
+                <!-- Mais fotos virão do JS futuramente -->
+            </div>
             </div>
 
             <!-- Appointments Tab -->
@@ -749,6 +736,7 @@
                                 <th>Data/Hora</th>
                                 <th>Cliente</th>
                                 <th>Serviço</th>
+                                <th>Valor</th>
                                 <th>Status</th>
                                 <th>Ações</th>
                             </tr>
