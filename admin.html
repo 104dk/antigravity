@@ -555,7 +555,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 0.75rem;">WhatsApp de Contato</label>
-                                    <input type="tel" id="set-contact-phone" value="(11) 99999-9999">
+                                    <input type="tel" id="set-contact-phone" value="(61) 99376-8468">
                                 </div>
                             </div>
 
@@ -1032,7 +1032,8 @@
     <!-- Service Modal -->
     <div id="service-modal" class="modal hidden">
         <div class="modal-content">
-            <span class="close-modal">&times;</span>
+            <span class="close-modal"
+                onclick="document.getElementById('service-modal').classList.add('hidden')">&times;</span>
             <h2 id="modal-title">Novo Serviço</h2>
             <form id="service-form">
                 <input type="hidden" id="service-id">
@@ -1055,10 +1056,15 @@
                             style="width: 80px; height: 80px; background: #222; border: 1px solid var(--gold); border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #444;">
                             🖼️
                         </div>
-                        <div style="flex: 1;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
                             <input type="file" id="svc-file" accept="image/*" style="display: none;">
-                            <button type="button" class="btn-primary" style="padding: 8px 15px; font-size: 0.75rem;"
-                                onclick="document.getElementById('svc-file').click()">Selecionar da Galeria</button>
+                            <div style="display: flex; gap: 8px;">
+                                <button type="button" class="btn-primary"
+                                    style="padding: 8px 12px; font-size: 0.75rem; flex: 1;"
+                                    onclick="document.getElementById('svc-file').click()">Fazer Upload</button>
+                                <button type="button" class="btn-outline" id="btn-open-gallery"
+                                    style="padding: 8px 12px; font-size: 0.75rem; flex: 1;">Biblioteca</button>
+                            </div>
                             <input type="hidden" id="svc-image">
                             <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">Formatos aceitos:
                                 JPG, PNG. Recomendado: 400x400px.</p>

@@ -76,11 +76,16 @@ if (window.__tataNailInit) {
                 const price = parseFloat(svc.price || 0).toFixed(2).replace('.', ',');
                 const card = document.createElement('div');
                 card.className = 'service-card';
+
                 const icons = ['💅', '👣', '✨', '👑', '🌸', '🎨', '🌟', '💎'];
-                const icon = icons[index % icons.length];
+                const defaultIcon = icons[index % icons.length];
+
+                const photo = svc.image_url
+                    ? `<div class="service-photo"><img src="${svc.image_url}" alt="${svc.name}"></div>`
+                    : `<div class="service-icon">${defaultIcon}</div>`;
 
                 card.innerHTML = `
-                    <div class="service-icon">${icon}</div>
+                    ${photo}
                     <h3>${svc.name}</h3>
                     <p>${svc.description || 'Tratamento exclusivo personalizado para você.'}</p>
                     <div class="service-footer">

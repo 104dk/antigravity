@@ -282,10 +282,24 @@ img {
     transform: translateY(-5px);
 }
 
-.service-icon {
+.service-icon, .service-photo {
     font-size: 2.5rem;
     margin-bottom: 24px;
     display: block;
+}
+
+.service-photo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--rose);
+}
+
+.service-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .service-card h3 {

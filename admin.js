@@ -97,24 +97,31 @@
     }
 
     // --- Tabs Logic ---
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            tabBtns.forEach(b => b.classList.remove('active'));
-            tabContents.forEach(c => c.classList.add('hidden'));
-
-            btn.classList.add('active');
-            const tab = document.getElementById(`tab-${btn.dataset.tab}`);
-            if (tab) tab.classList.remove('hidden');
-
-            // Load data when switching tabs
-            if (btn.dataset.tab === 'dashboard') loadDashboardStats();
-            if (btn.dataset.tab === 'clients') loadClients();
-            if (btn.dataset.tab === 'gallery') loadGallery();
-            if (btn.dataset.tab === 'messages') loadMessages();
-            if (btn.dataset.tab === 'users') loadUsers();
-            if (btn.dataset.tab === 'backups') loadBackups();
-            if (btn.dataset.tab === 'logs') loadAuditLogs();
+    function switchTab(tabId) {
+        tabBtns.forEach(b => {
+            if (b.dataset.tab === tabId) b.classList.add('active');
+            else b.classList.remove('active');
         });
+        tabContents.forEach(c => {
+            if (c.id === `tab-${tabId}`) c.classList.remove('hidden');
+            else c.classList.add('hidden');
+        });
+
+        // Load data specific to the tab
+        if (tabId === 'dashboard') loadDashboardStats();
+        if (tabId === 'appointments') loadAppointments();
+        if (tabId === 'services') loadServices();
+        if (tabId === 'clients') loadClients();
+        if (tabId === 'gallery') loadGallery();
+        if (tabId === 'messages') loadMessages();
+        if (tabId === 'users') loadUsers();
+        if (tabId === 'backups') loadBackups();
+        if (tabId === 'logs') loadAuditLogs();
+    }
+
+    // --- Tabs Logic ---
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
     });
 
     // --- Gallery Logic ---
@@ -646,24 +653,48 @@
                 card.style.flexDirection = 'column';
                 card.style.gap = '15px';
 
-                const photo = svc.image_url
-                    ? `<img src="${svc.image_url}" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 6px;">`
-                    : `<div style="width: 100%; aspect-ratio: 16/9; background: #222; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: 1px dashed var(--border); font-size: 2rem;">🖼️</div>`;
+                const photoContainer = document.createElement('div');
+                photoContainer.style.width = '100%';
+                photoContainer.style.aspectRatio = '16/9';
+                photoContainer.style.borderRadius = '6px';
+                photoContainer.style.overflow = 'hidden';
+                photoContainer.style.background = '#222';
+                photoContainer.style.display = 'flex';
+                photoContainer.style.alignItems = 'center';
+                photoContainer.style.justifyContent = 'center';
+                photoContainer.style.border = '1px solid var(--border)';
 
-                card.innerHTML = `
-                    ${photo}
-                    <div>
-                        <h4 style="margin: 0; font-size: 1rem; color: var(--rose);">${svc.name}</h4>
-                        <p style="font-size: 0.8rem; color: var(--muted); margin: 5px 0 10px; min-height: 2.4em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${svc.description || 'Sem descrição'}</p>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: 700; color: var(--cloud);">R$ ${parseFloat(svc.price || 0).toFixed(2)}</span>
-                            <div style="display: flex; gap: 8px;">
-                                <button class="action-btn" onclick='editService(${JSON.stringify(svc)})'>✏️</button>
-                                <button class="action-btn" onclick="deleteService(${svc.id})">🗑️</button>
-                            </div>
-                        </div>
+                if (svc.image_url) {
+                    photoContainer.innerHTML = `<img src="${svc.image_url}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                } else {
+                    photoContainer.innerHTML = `<span style="font-size: 2rem;">🖼️</span>`;
+                }
+
+                const content = document.createElement('div');
+                content.innerHTML = `
+                    <h4 style="margin: 0; font-size: 1rem; color: var(--rose);">${svc.name}</h4>
+                    <p style="font-size: 0.8rem; color: var(--muted); margin: 5px 0 10px; min-height: 2.4em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${svc.description || 'Sem descrição'}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 700; color: var(--cloud);">R$ ${parseFloat(svc.price || 0).toFixed(2)}</span>
+                        <div class="actions" style="display: flex; gap: 8px;"></div>
                     </div>
                 `;
+
+                const editBtn = document.createElement('button');
+                editBtn.className = 'action-btn';
+                editBtn.innerHTML = '✏️';
+                editBtn.onclick = () => editService(svc);
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'action-btn';
+                deleteBtn.innerHTML = '🗑️';
+                deleteBtn.onclick = () => deleteService(svc.id);
+
+                content.querySelector('.actions').appendChild(editBtn);
+                content.querySelector('.actions').appendChild(deleteBtn);
+
+                card.appendChild(photoContainer);
+                card.appendChild(content);
                 grid.appendChild(card);
             });
         } catch (err) {
@@ -697,9 +728,7 @@
         });
     }
 
-    document.querySelector('.close-modal').addEventListener('click', () => {
-        serviceModal.classList.add('hidden');
-    });
+    // Modals are closed via inline onclick for consistency in HTML
 
     serviceForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -786,6 +815,16 @@
 
         document.getElementById('modal-title').textContent = 'Editar Serviço';
         serviceModal.classList.remove('hidden');
+    };
+
+    // Library Selector for Services
+    document.getElementById('btn-open-gallery').onclick = () => {
+        openImageSelector((url) => {
+            document.getElementById('svc-image').value = url;
+            imagePreview.innerHTML = `<img src="${url}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            // Clear file input if gallery is used
+            document.getElementById('svc-file').value = '';
+        });
     };
 
     window.deleteService = async (id) => {
@@ -1142,13 +1181,7 @@
                 btn.className = 'tab-btn';
                 btn.dataset.tab = tab.id;
                 btn.innerText = tab.label;
-                btn.onclick = () => {
-                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-                    btn.classList.add('active');
-                    const target = document.getElementById(`tab-${tab.id}`);
-                    if (target) target.classList.remove('hidden');
-                };
+                btn.onclick = () => switchTab(tab.id);
                 tabContainer.appendChild(btn);
             }
         });
@@ -1156,6 +1189,11 @@
         // Set Dashboard active by default if visible
         const dashBtn = tabContainer.querySelector('[data-tab="dashboard"]');
         if (dashBtn) dashBtn.click();
+        else if (config.length > 0 && config[0].visible) {
+            // If dashboard not visible, click first visible tab
+            const firstVisible = tabContainer.querySelector('.tab-btn');
+            if (firstVisible) firstVisible.click();
+        }
     }
 
     document.getElementById('save-settings-btn').addEventListener('click', async () => {
@@ -1241,7 +1279,7 @@
         setTimeout(() => toast.remove(), 3000);
     }
 
-    window.openImageSelector = async () => {
+    window.openImageSelector = async (onSelect) => {
         const modal = document.getElementById('image-selector-modal');
         const grid = document.getElementById('image-selector-grid');
         grid.innerHTML = 'Carregando...';
@@ -1266,8 +1304,12 @@
                     <small style="font-size: 0.6rem; word-break: break-all;">${img.name}</small>
                 `;
                 div.onclick = () => {
-                    document.getElementById('site-logo-url').value = img.url;
-                    updateLogoPreview(img.url);
+                    if (onSelect) onSelect(img.url);
+                    else {
+                        // Default behavior for logo
+                        document.getElementById('site-logo-url').value = img.url;
+                        updateLogoPreview(img.url);
+                    }
                     modal.classList.add('hidden');
                 };
                 grid.appendChild(div);
