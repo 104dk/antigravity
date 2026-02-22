@@ -599,90 +599,125 @@
 
                 </div>
 
-                <div style="margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
-                    <!-- Coluna 1: Gestão de Abas -->
-                    <div>
-                        <h3
-                            style="font-size: 1rem; margin-bottom: 20px; border-left: 3px solid var(--rose); padding-left: 10px;">
-                            Gestor de Abas do Painel</h3>
-                        <div class="stat-card" style="padding: 20px;">
-                            <p style="font-size: 0.8rem; color: var(--muted); margin-bottom: 15px;">Renomeie ou oculte
-                                ferramentas do seu painel.</p>
-                            <div id="tabs-manager" style="display: flex; flex-direction: column; gap: 10px;">
-                                <div class="action-btn"
-                                    style="justify-content: space-between; padding: 10px 15px; width: 100%;">
-                                    <input type="text" value="Dashboard" data-id="dashboard"
-                                        style="background: none; border: none; padding: 0; width: 120px; font-weight: 600;">
-                                    <input type="checkbox" checked data-id="dashboard" style="width: 20px;">
-                                </div>
-                                <div class="action-btn"
-                                    style="justify-content: space-between; padding: 10px 15px; width: 100%;">
-                                    <input type="text" value="Agendamentos" data-id="appointments"
-                                        style="background: none; border: none; padding: 0; width: 120px; font-weight: 600;">
-                                    <input type="checkbox" checked data-id="appointments" style="width: 20px;">
-                                </div>
-                                <div class="action-btn"
-                                    style="justify-content: space-between; padding: 10px 15px; width: 100%;">
-                                    <input type="text" value="Serviços" data-id="services"
-                                        style="background: none; border: none; padding: 0; width: 120px; font-weight: 600;">
-                                    <input type="checkbox" checked data-id="services" style="width: 20px;">
-                                </div>
-                                <div class="action-btn"
-                                    style="justify-content: space-between; padding: 10px 15px; width: 100%;">
-                                    <input type="text" value="Clientes" data-id="clients"
-                                        style="background: none; border: none; padding: 0; width: 120px; font-weight: 600;">
-                                    <input type="checkbox" checked data-id="clients" style="width: 20px;">
-                                </div>
-                                <div class="action-btn"
-                                    style="justify-content: space-between; padding: 10px 15px; width: 100%;">
-                                    <input type="text" value="Financeiro" data-id="reports"
-                                        style="background: none; border: none; padding: 0; width: 120px; font-weight: 600;">
-                                    <input type="checkbox" checked data-id="reports" style="width: 20px;">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Configurações Globais de Conteúdo -->
+                <div style="margin-top: 40px; border-top: 1px solid var(--border); padding-top: 30px;">
+                    <h3 style="font-size: 1.2rem; margin-bottom: 25px; color: var(--rose);">Configurações de Conteúdo do
+                        Site</h3>
 
-                    <!-- Coluna 2: Avisos e Políticas -->
-                    <div>
-                        <h3
-                            style="font-size: 1rem; margin-bottom: 20px; border-left: 3px solid var(--rose); padding-left: 10px;">
-                            Avisos & Políticas do Site</h3>
-                        <div class="stat-card" style="padding: 20px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                        <!-- Coluna 1: Textos do Site -->
+                        <div class="stat-card" style="padding: 25px;">
+                            <h4
+                                style="margin-bottom: 15px; font-size: 0.9rem; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+                                Identidade e Galeria</h4>
                             <div class="form-group">
-                                <label style="font-size: 0.75rem;">Aviso de Topo (Marquee)</label>
-                                <input type="text" id="set-site-notice"
-                                    placeholder="Ex: Não atenderemos no feriado do dia 01/05" value="">
+                                <label>Título do Site (Aba e Logo)</label>
+                                <input type="text" id="set-site-title" placeholder="Ex: Tata Nail | Especialista">
                             </div>
                             <div class="form-group" style="margin-top: 15px;">
-                                <label style="font-size: 0.75rem;">Política de Cancelamento</label>
-                                <textarea id="set-cancel-policy" style="min-height: 80px; font-size: 0.85rem;"
-                                    placeholder="Ex: Cancelamentos com menos de 24h pagam 50%..."></textarea>
+                                <label>Título da Galeria (Hero)</label>
+                                <input type="text" id="set-gallery-title"
+                                    placeholder="Ex: Sua beleza em primeiro plano.">
+                            </div>
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label>Subtítulo da Galeria</label>
+                                <textarea id="set-gallery-subtitle" style="min-height: 60px;"></textarea>
+                            </div>
+
+                            <h4
+                                style="margin-top: 30px; margin-bottom: 15px; font-size: 0.9rem; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+                                Seção Sobre</h4>
+                            <div class="form-group">
+                                <label>Título da Seção Sobre</label>
+                                <input type="text" id="set-about-title">
+                            </div>
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label>Texto da Seção Sobre</label>
+                                <textarea id="set-about-text" style="min-height: 100px;"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Coluna 2: Contato e Políticas -->
+                        <div class="stat-card" style="padding: 25px;">
+                            <h4
+                                style="margin-bottom: 15px; font-size: 0.9rem; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+                                Contato e Redes</h4>
+                            <div class="form-group">
+                                <label>WhatsApp de Contato (Formatado)</label>
+                                <input type="text" id="set-contact-phone" placeholder="Ex: (61) 98285-3421">
+                            </div>
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label>Endereço / Localização</label>
+                                <input type="text" id="set-contact-address" placeholder="Ex: Luziânia - GO">
+                            </div>
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label>Instagram URL</label>
+                                <input type="url" id="set-instagram-url" placeholder="https://instagram.com/...">
+                            </div>
+
+                            <h4
+                                style="margin-top: 30px; margin-bottom: 15px; font-size: 0.9rem; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+                                Avisos e Agendamento</h4>
+                            <div class="form-group">
+                                <label>Aviso de Topo (Opcional)</label>
+                                <input type="text" id="set-site-notice" placeholder="Ex: Promoção de Inverno ativa!">
+                            </div>
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label>Políticas de Cancelamento</label>
+                                <textarea id="set-cancel-policy" style="min-height: 80px;"></textarea>
                             </div>
                             <div class="form-group"
                                 style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
                                 <input type="checkbox" id="set-show-policy" style="width: 20px;">
-                                <label style="font-size: 0.75rem;">Exibir política no formulário de agendamento</label>
+                                <label style="font-size: 0.8rem;">Exibir políticas no formulário</label>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Rodapé de Configurações: Novas Ferramentas -->
-                <div
-                    style="margin-top: 40px; border-top: 1px solid var(--border); padding-top: 30px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
-                    <div class="stat-card" style="padding: 15px; border: 1px dashed var(--rose); background: none;">
-                        <h4 style="font-size: 0.8rem; margin-bottom: 5px;">🔥 Cliques no WhatsApp</h4>
-                        <p style="font-size: 1.2rem; font-weight: 700;">128 <small
-                                style="font-size: 0.6rem; color: #48BB78;">+12%</small></p>
+                    <!-- Gestor de Abas -->
+                    <div style="margin-top: 30px;" class="stat-card">
+                        <div style="padding: 20px;">
+                            <h4 style="margin-bottom: 15px; font-size: 0.9rem;">Gestor de Abas do Painel</h4>
+                            <div id="tabs-manager"
+                                style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                                <div class="action-btn" style="justify-content: space-between; padding: 10px 15px;">
+                                    <input type="text" value="Dashboard" data-id="dashboard"
+                                        style="background: none; border: none; color: white; width: 100px;">
+                                    <input type="checkbox" checked data-id="dashboard" style="width: 18px;">
+                                </div>
+                                <div class="action-btn" style="justify-content: space-between; padding: 10px 15px;">
+                                    <input type="text" value="Agendamentos" data-id="appointments"
+                                        style="background: none; border: none; color: white; width: 100px;">
+                                    <input type="checkbox" checked data-id="appointments" style="width: 18px;">
+                                </div>
+                                <div class="action-btn" style="justify-content: space-between; padding: 10px 15px;">
+                                    <input type="text" value="Serviços" data-id="services"
+                                        style="background: none; border: none; color: white; width: 100px;">
+                                    <input type="checkbox" checked data-id="services" style="width: 18px;">
+                                </div>
+                                <div class="action-btn" style="justify-content: space-between; padding: 10px 15px;">
+                                    <input type="text" value="Clientes" data-id="clients"
+                                        style="background: none; border: none; color: white; width: 100px;">
+                                    <input type="checkbox" checked data-id="clients" style="width: 18px;">
+                                </div>
+                                <div class="action-btn" style="justify-content: space-between; padding: 10px 15px;">
+                                    <input type="text" value="Galeria" data-id="gallery"
+                                        style="background: none; border: none; color: white; width: 100px;">
+                                    <input type="checkbox" checked data-id="gallery" style="width: 18px;">
+                                </div>
+                                <div class="action-btn" style="justify-content: space-between; padding: 10px 15px;">
+                                    <input type="text" value="Financeiro" data-id="reports"
+                                        style="background: none; border: none; color: white; width: 100px;">
+                                    <input type="checkbox" checked data-id="reports" style="width: 18px;">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="stat-card" style="padding: 15px; border: 1px dashed var(--rose); background: none;">
-                        <h4 style="font-size: 0.8rem; margin-bottom: 5px;">🎫 Cupons Ativos</h4>
-                        <p style="font-size: 1.2rem; font-weight: 700;">3</p>
-                    </div>
-                    <div class="stat-card" style="padding: 15px; border: 1px dashed var(--rose); background: none;">
-                        <h4 style="font-size: 0.8rem; margin-bottom: 5px;">⭐ Engajamento SEO</h4>
-                        <p style="font-size: 1.2rem; font-weight: 700;">Forte</p>
+
+                    <div style="margin-top: 30px; text-align: right;">
+                        <button id="save-all-settings" class="btn-primary"
+                            style="width: auto; padding: 15px 40px; font-weight: 700;">Salvar Todas as
+                            Alterações</button>
                     </div>
                 </div>
             </div>

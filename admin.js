@@ -1280,87 +1280,50 @@
     });
 
     // --- Settings Logic ---
-    // --- Layout & System Manager Logic ---
     async function loadSettings() {
         try {
-            // Priority: Local (unsaved changes/demo) > Server API
-            let settings = {};
-            const localSaved = localStorage.getItem('tata_settings');
+            const res = await fetch(`${API_URL}/settings`);
+            const settings = await res.json();
 
-            if (localSaved) {
-                settings = JSON.parse(localSaved);
-            } else {
-                const res = await fetch(`${API_URL}/settings`);
-                const data = await res.json();
-                settings = data.settings || {};
+            // Mapear campos do painel
+            const fieldMap = {
+                'set-site-title': 'site_title',
+                'set-gallery-title': 'gallery_hero_title',
+                'set-gallery-subtitle': 'gallery_hero_subtitle',
+                'set-about-title': 'about_title',
+                'set-about-text': 'about_text',
+                'set-contact-phone': 'contact_phone',
+                'set-contact-address': 'contact_address',
+                'set-instagram-url': 'instagram_url',
+                'set-site-notice': 'site_notice',
+                'set-cancel-policy': 'cancel_policy'
+            };
+
+            for (const [id, key] of Object.entries(fieldMap)) {
+                const el = document.getElementById(id);
+                if (el) el.value = settings[key] || '';
             }
 
-            // Map fields to UI
-            if (document.getElementById('set-site-title')) document.getElementById('set-site-title').value = settings.site_title || 'Tata Nail | Especialista em Unhas Premium';
-            if (document.getElementById('set-about-text')) document.getElementById('set-about-text').value = settings.about_text || '';
-            if (document.getElementById('set-contact-phone')) document.getElementById('set-contact-phone').value = settings.contact_phone || '(11) 99999-9999';
-            if (document.getElementById('set-opening')) document.getElementById('set-opening').value = settings.opening_time || '09:00';
-            if (document.getElementById('set-closing')) document.getElementById('set-closing').value = settings.closing_time || '19:00';
+            const showPolicy = document.getElementById('set-show-policy');
+            if (showPolicy) showPolicy.checked = settings['show_policy'] === 'true';
 
-            // CMS v3: Notices & Policies
-            if (document.getElementById('set-site-notice')) document.getElementById('set-site-notice').value = settings.site_notice || '';
-            if (document.getElementById('set-cancel-policy')) document.getElementById('set-cancel-policy').value = settings.cancel_policy || '';
-            if (document.getElementById('set-show-policy')) document.getElementById('set-show-policy').checked = !!settings.show_policy;
+            // Tab Manager
+            const tabContainer = document.getElementById('tabs-manager');
+            if (tabContainer) {
+                const inputs = tabContainer.querySelectorAll('input[type="text"]');
+                const checks = tabContainer.querySelectorAll('input[type="checkbox"]');
 
-            if (document.getElementById('set-primary-color')) {
-                const color = settings.primary_color || '#B76E79';
-                document.getElementById('set-primary-color').value = color;
-                document.getElementById('set-primary-color-text').value = color.toUpperCase();
-            }
-
-            if (document.getElementById('set-font-style')) document.getElementById('set-font-style').value = settings.font_style || 'default';
-            if (document.getElementById('site-logo-url')) {
-                document.getElementById('site-logo-url').value = settings.site_logo || '✨';
-                updateLogoPreview(settings.site_logo || '✨');
-            }
-
-            // CMS v3: Dynamic Tabs UI Sync
-            if (settings.tabs_config) {
-                settings.tabs_config.forEach(tab => {
-                    const input = document.querySelector(`#tabs-manager input[type="text"][data-id="${tab.id}"]`);
-                    const checkbox = document.querySelector(`#tabs-manager input[type="checkbox"][data-id="${tab.id}"]`);
-                    if (input) input.value = tab.label;
-                    if (checkbox) checkbox.checked = tab.visible;
+                inputs.forEach(input => {
+                    const id = input.dataset.id;
+                    if (settings[`tab_name_${id}`]) input.value = settings[`tab_name_${id}`];
                 });
-            }
-            renderDynamicTabs(settings.tabs_config);
 
-            // CMS v3: Dashboard Cards Sync
-            if (settings.dash_cards) {
-                const cards = settings.dash_cards;
-                if (document.getElementById('dash-card-today-title')) document.getElementById('dash-card-today-title').value = cards.today_title || 'Agendamentos Hoje';
-                if (document.getElementById('dash-card-today-icon')) document.getElementById('dash-card-today-icon').value = cards.today_icon || '📅';
-                if (document.getElementById('dash-card-week-title')) document.getElementById('dash-card-week-title').value = cards.week_title || 'Esta Semana';
-                if (document.getElementById('dash-card-week-icon')) document.getElementById('dash-card-week-icon').value = cards.week_icon || '📊';
-                if (document.getElementById('dash-card-month-title')) document.getElementById('dash-card-month-title').value = cards.month_title || 'Este Mês';
-                if (document.getElementById('dash-card-month-icon')) document.getElementById('dash-card-month-icon').value = cards.month_icon || '📈';
-                if (document.getElementById('dash-card-revenue-title')) document.getElementById('dash-card-revenue-title').value = cards.revenue_title || 'Receita Total';
-                if (document.getElementById('dash-card-revenue-icon')) document.getElementById('dash-card-revenue-icon').value = cards.revenue_icon || '💰';
-
-                // Apply titles to Dashboard Tab
-                const dTabs = document.getElementById('tab-dashboard');
-                if (dTabs) {
-                    const titles = dTabs.querySelectorAll('.stat-card h3');
-                    if (titles.length >= 4) {
-                        titles[0].innerHTML = `${cards.today_icon || '📅'} ${cards.today_title || 'Agendamentos Hoje'}`;
-                        titles[1].innerHTML = `${cards.week_icon || '📊'} ${cards.week_title || 'Esta Semana'}`;
-                        titles[2].innerHTML = `${cards.month_icon || '📈'} ${cards.month_title || 'Este Mês'}`;
-                        titles[3].innerHTML = `${cards.revenue_icon || '💰'} ${cards.revenue_title || 'Receita Total'}`;
+                checks.forEach(check => {
+                    const id = check.dataset.id;
+                    if (settings[`tab_show_${id}`] !== undefined) {
+                        check.checked = settings[`tab_show_${id}`] === 'true';
                     }
-                }
-            }
-
-            // Sync color picker text
-            const pcol = document.getElementById('set-primary-color');
-            const ptat = document.getElementById('set-primary-color-text');
-            if (pcol && ptat) {
-                pcol.oninput = (e) => ptat.value = e.target.value.toUpperCase();
-                ptat.onchange = (e) => pcol.value = e.target.value;
+                });
             }
 
         } catch (err) {
@@ -1368,98 +1331,72 @@
         }
     }
 
-    function renderDynamicTabs(config) {
-        if (!config || config.length === 0) return;
-        const tabContainer = document.querySelector('.tabs');
-        if (!tabContainer) return;
+    async function saveSettings() {
+        const btn = document.getElementById('save-all-settings');
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = 'Salvando...';
+        }
 
-        tabContainer.innerHTML = '';
-        config.forEach(tab => {
-            if (tab.visible) {
-                const btn = document.createElement('button');
-                btn.className = 'tab-btn';
-                btn.dataset.tab = tab.id;
-                btn.innerText = tab.label;
-                btn.onclick = () => switchTab(tab.id);
-                tabContainer.appendChild(btn);
+        const settings = {
+            'site_title': document.getElementById('set-site-title')?.value,
+            'gallery_hero_title': document.getElementById('set-gallery-title')?.value,
+            'gallery_hero_subtitle': document.getElementById('set-gallery-subtitle')?.value,
+            'about_title': document.getElementById('set-about-title')?.value,
+            'about_text': document.getElementById('set-about-text')?.value,
+            'contact_phone': document.getElementById('set-contact-phone')?.value,
+            'contact_address': document.getElementById('set-contact-address')?.value,
+            'instagram_url': document.getElementById('set-instagram-url')?.value,
+            'site_notice': document.getElementById('set-site-notice')?.value,
+            'cancel_policy': document.getElementById('set-cancel-policy')?.value,
+            'show_policy': document.getElementById('set-show-policy')?.checked ? 'true' : 'false'
+        };
+
+        // Tab Manager
+        const tabContainer = document.getElementById('tabs-manager');
+        if (tabContainer) {
+            tabContainer.querySelectorAll('input[data-id]').forEach(input => {
+                const id = input.dataset.id;
+                if (input.type === 'text') {
+                    settings[`tab_name_${id}`] = input.value;
+                } else if (input.type === 'checkbox') {
+                    settings[`tab_show_${id}`] = input.checked ? 'true' : 'false';
+                }
+            });
+        }
+
+        try {
+            const res = await fetch(`${API_URL}/settings`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentToken}`
+                },
+                body: JSON.stringify({ settings })
+            });
+
+            if (res.ok) {
+                alert('Configurações salvas com sucesso!');
+                location.reload();
+            } else {
+                const data = await res.json();
+                alert('Erro: ' + (data.error || 'Falha ao salvar'));
             }
-        });
-
-        // Set Dashboard active by default if visible
-        const dashBtn = tabContainer.querySelector('[data-tab="dashboard"]');
-        if (dashBtn) dashBtn.click();
-        else if (config.length > 0 && config[0].visible) {
-            // If dashboard not visible, click first visible tab
-            const firstVisible = tabContainer.querySelector('.tab-btn');
-            if (firstVisible) firstVisible.click();
+        } catch (err) {
+            alert('Erro de conexão ao salvar configurações');
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = 'Salvar Todas as Alterações';
+            }
         }
     }
 
-    document.getElementById('save-settings-btn').addEventListener('click', async () => {
-        const btn = document.getElementById('save-settings-btn');
-        const settings = {
-            site_title: document.getElementById('set-site-title').value,
-            about_text: document.getElementById('set-about-text').value,
-            contact_phone: document.getElementById('set-contact-phone').value,
-            opening_time: document.getElementById('set-opening').value,
-            closing_time: document.getElementById('set-closing').value,
-            primary_color: document.getElementById('set-primary-color').value,
-            font_style: document.getElementById('set-font-style').value,
-            site_logo: document.getElementById('site-logo-url').value,
-            site_notice: document.getElementById('set-site-notice').value,
-            cancel_policy: document.getElementById('set-cancel-policy').value,
-            show_policy: document.getElementById('set-show-policy').checked,
-            off_days: Array.from(document.getElementById('set-off-days').selectedOptions).map(o => o.value),
-            tabs_config: Array.from(document.querySelectorAll('#tabs-manager .action-btn')).map(row => {
-                const input = row.querySelector('input[type="text"]');
-                const checkbox = row.querySelector('input[type="checkbox"]');
-                return {
-                    id: input.dataset.id,
-                    label: input.value,
-                    visible: checkbox.checked
-                };
-            }),
-            dash_cards: {
-                today_title: document.getElementById('dash-card-today-title').value,
-                today_icon: document.getElementById('dash-card-today-icon').value,
-                week_title: document.getElementById('dash-card-week-title').value,
-                week_icon: document.getElementById('dash-card-week-icon').value,
-                month_title: document.getElementById('dash-card-month-title').value,
-                month_icon: document.getElementById('dash-card-month-icon').value,
-                revenue_title: document.getElementById('dash-card-revenue-title').value,
-                revenue_icon: document.getElementById('dash-card-revenue-icon').value
-            }
-        };
+    const saveSettingsTrigger = document.getElementById('save-all-settings');
+    if (saveSettingsTrigger) {
+        saveSettingsTrigger.addEventListener('click', saveSettings);
+    }
 
-        btn.disabled = true;
-        btn.textContent = 'Publicando...';
-
-        try {
-            // Save to LocalStorage for immediate demo effect
-            localStorage.setItem('tata_settings', JSON.stringify(settings));
-            renderDynamicTabs(settings.tabs_config);
-
-            // Sync with Server if currentToken exists
-            if (currentToken) {
-                await fetch(`${API_URL}/settings`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${currentToken}`
-                    },
-                    body: JSON.stringify({ settings })
-                });
-            }
-
-            showToast('Alterações publicadas com sucesso! ✨');
-        } catch (err) {
-            console.error(err);
-            showToast('Salvo localmente, erro ao sincronizar com servidor.', 'warning');
-        } finally {
-            btn.disabled = false;
-            btn.textContent = 'Publicar Alterações';
-        }
-    });
 
     function showToast(msg, type = 'success') {
         const toast = document.createElement('div');

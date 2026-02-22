@@ -269,26 +269,96 @@ if (window.__tataNailInit) {
             observer.observe(section);
         });
 
-        // ── SITE SETTINGS (LOGO) ──
+        // ── SITE SETTINGS (LOGOS & TEXTS) ──
         function loadSiteSettings() {
             fetch('/api/settings')
                 .then(r => r.json())
                 .then(settings => {
-                    const headerLogo = document.getElementById('header-logo');
-                    const heroLogo = document.getElementById('hero-logo');
-                    const logoValue = settings.site_logo || '💅';
+                    // 1. Branding & Header
+                    const titles = document.querySelectorAll('.logo-text');
+                    if (settings.site_title) {
+                        document.title = settings.site_title;
+                        titles.forEach(el => {
+                            // Preserva a estrutura Tata<span class="text-rose">Nail</span> se for o padrão
+                            // Mas se o usuário mudou, injeta o novo
+                            const parts = settings.site_title.split('|')[0].trim().split(' ');
+                            if (parts.length >= 2) {
+                                el.innerHTML = `${parts[0]}<span class="text-rose">${parts[1]}</span>`;
+                            } else {
+                                el.textContent = settings.site_title.split('|')[0].trim();
+                            }
+                        });
+                    }
 
-                    const injectLogo = (el, size) => {
-                        if (!el) return;
-                        if (logoValue.startsWith('http') || logoValue.startsWith('/img/') || logoValue.startsWith('data:')) {
-                            el.innerHTML = `<img src="${logoValue}" alt="Logo">`;
-                        } else {
-                            el.innerHTML = logoValue;
+                    // 2. Hero / Gallery Intro
+                    const galleryTitle = document.querySelector('#gallery h1');
+                    const gallerySubtitle = document.querySelector('#gallery p');
+                    if (settings.gallery_hero_title && galleryTitle) {
+                        // Tratar <span class="text-rose"> se estiver no texto? 
+                        // Por segurança, vamos usar innerHTML se o usuário quiser formatar
+                        galleryTitle.innerHTML = settings.gallery_hero_title.replace('primeiro plano', '<span class="text-rose">primeiro plano</span>');
+                    }
+                    if (settings.gallery_hero_subtitle && gallerySubtitle) {
+                        gallerySubtitle.textContent = settings.gallery_hero_subtitle;
+                    }
+
+                    // 3. About Section
+                    const aboutTitle = document.querySelector('#about h2');
+                    const aboutText = document.querySelector('#about p');
+                    if (settings.about_title && aboutTitle) {
+                        aboutTitle.innerHTML = settings.about_title.replace('Cada Detalhe', '<span class="text-rose">Cada Detalhe</span>');
+                    }
+                    if (settings.about_text && aboutText) {
+                        aboutText.textContent = settings.about_text;
+                    }
+
+                    // 4. Contact & Footer
+                    const footerContact = document.querySelector('.footer-contact');
+                    if (footerContact && settings.contact_address && settings.contact_phone) {
+                        footerContact.innerHTML = `
+                            <h4>Contato</h4>
+                            <p>📍 ${settings.contact_address}</p>
+                            <p>📞 ${settings.contact_phone}</p>
+                        `;
+                    }
+
+                    // 5. Instagram & WhatsApp Links
+                    const instaLinks = document.querySelectorAll('a[href*="instagram.com"]');
+                    if (settings.instagram_url) {
+                        instaLinks.forEach(a => a.href = settings.instagram_url);
+                    }
+
+                    if (settings.contact_phone) {
+                        const waLinks = document.querySelectorAll('a[href*="wa.me"]');
+                        const cleanPhone = settings.contact_phone.replace(/\D/g, '');
+                        waLinks.forEach(a => {
+                            const currentHref = a.href;
+                            if (currentHref.includes('wa.me')) {
+                                // Se for o link principal do footer, atualiza
+                                a.href = `https://wa.me/55${cleanPhone}`;
+                            }
+                        });
+                    }
+
+                    // 6. Navigation (Tab Names)
+                    const navA = document.querySelectorAll('#nav-list a');
+                    navA.forEach(a => {
+                        const id = a.getAttribute('href').replace('#', '');
+                        if (settings[`tab_name_${id}`]) a.textContent = settings[`tab_name_${id}`];
+                        // if (settings[`tab_show_${id}`] === 'false') a.parentElement.style.display = 'none';
+                    });
+
+                    // 7. Site Notice (Banner opcional)
+                    if (settings.site_notice) {
+                        let noticeEl = document.getElementById('site-notice-banner');
+                        if (!noticeEl) {
+                            noticeEl = document.createElement('div');
+                            noticeEl.id = 'site-notice-banner';
+                            noticeEl.style = "background: var(--rose); color: white; text-align: center; padding: 10px; font-size: 0.8rem; font-weight: 600; position: sticky; top: 0; z-index: 1001;";
+                            document.body.prepend(noticeEl);
                         }
-                    };
-
-                    injectLogo(headerLogo);
-                    injectLogo(heroLogo);
+                        noticeEl.textContent = settings.site_notice;
+                    }
                 })
                 .catch(err => console.error('Erro ao carregar configurações:', err));
         }

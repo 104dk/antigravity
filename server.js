@@ -547,6 +547,36 @@ app.delete('/api/clients/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// Reports API
+app.get('/api/reports', authenticateToken, async (req, res) => {
+    const { start, end } = req.query;
+    if (!start || !end) return res.status(400).json({ error: 'Datas inicial e final são obrigatórias' });
+
+    try {
+        const { data, error } = await supabase
+            .from('appointments')
+            .select('*, clients(name)')
+            .gte('date', start)
+            .lte('date', end)
+            .order('date', { ascending: false });
+
+        if (error) throw error;
+
+        const appointments = data.map(app => ({
+            ...app,
+            name: app.clients.name
+        }));
+
+        const total = appointments
+            .filter(app => app.status === 'completed')
+            .reduce((sum, app) => sum + (parseFloat(app.amount) || 0), 0);
+
+        res.json({ total, appointments });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // User Management (Admin only)
 app.get('/api/users', authenticateToken, requireAdmin, async (req, res) => {
     try {
