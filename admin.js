@@ -125,93 +125,142 @@
     });
 
     // --- Gallery Logic ---
+    // --- Gallery Logic (Dynamic) ---
     async function loadGallery() {
         const grid = document.getElementById('admin-gallery-grid');
         if (!grid) return;
         grid.innerHTML = '<p>Carregando galeria...</p>';
 
         try {
-            const res = await fetch(`${API_URL}/admin/images`, {
-                headers: { 'Authorization': `Bearer ${currentToken}` }
-            });
-            const images = await res.json();
+            const res = await fetch(`${API_URL}/gallery`);
+            const items = await res.json();
 
             grid.innerHTML = '';
-            images.forEach(img => {
+            items.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'stat-card';
                 div.style.padding = '10px';
-                div.style.textAling = 'center';
+                div.style.textAlign = 'center';
                 div.innerHTML = `
-                    <img src="${img.url}" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; margin-bottom: 10px;">
-                    <button class="action-btn" style="width: 100%; font-size: 0.7rem;" onclick="deleteGalleryImage('${img.name}')">🗑️ Remover</button>
+                    <div style="position: relative;">
+                        <img src="${item.image_url}" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; margin-bottom: 10px;">
+                        <span style="position: absolute; bottom: 15px; left: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; font-size: 0.6rem; padding: 2px 4px; border-radius: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.title || ''}</span>
+                    </div>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="action-btn" style="flex: 1; font-size: 0.7rem;" onclick="deleteGalleryItem(${item.id})">🗑️</button>
+                    </div>
                 `;
                 grid.appendChild(div);
             });
 
-            if (images.length === 0) {
-                grid.innerHTML = '<p style="grid-column: 1/-1;">Nenhuma foto na galeria local.</p>';
+            if (items.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1;">Nenhum item na galeria.</p>';
             }
         } catch (err) {
             grid.innerHTML = '<p>Erro ao carregar galeria.</p>';
         }
     }
 
-    window.deleteGalleryImage = async (filename) => {
-        if (!confirm('Tem certeza que deseja remover esta imagem da galeria local?')) return;
+    const galleryModal = document.getElementById('gallery-modal');
+    const galleryForm = document.getElementById('gallery-form');
+
+    document.getElementById('add-gallery-photo-btn').addEventListener('click', () => {
+        galleryForm.reset();
+        document.getElementById('gallery-id').value = '';
+        document.getElementById('gallery-image-preview').innerHTML = '🖼️';
+        document.getElementById('gallery-modal-title').textContent = 'Nova Foto na Galeria';
+        galleryModal.classList.remove('hidden');
+    });
+
+    // Gallery Form Submission
+    galleryForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = galleryForm.querySelector('button[type="submit"]');
+        const fileInput = document.getElementById('gallery-item-file');
+
+        const data = {
+            title: document.getElementById('gallery-item-title').value.trim(),
+            image_url: document.getElementById('gallery-item-url').value.trim()
+        };
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Salvando...';
+
         try {
-            const res = await fetch(`${API_URL}/gallery/${filename}`, {
+            // 1. Upload if file selected
+            if (fileInput.files.length > 0) {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                const uploadRes = await fetch(`${API_URL}/gallery/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${currentToken}` },
+                    body: formData
+                });
+                const uploadData = await uploadRes.json();
+                if (uploadRes.ok) data.image_url = uploadData.url;
+                else throw new Error(uploadData.error || 'Erro no upload');
+            }
+
+            if (!data.image_url) throw new Error('Selecione uma imagem ou cole um link');
+
+            // 2. Save Item Record
+            const res = await fetch(`${API_URL}/gallery`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentToken}`
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                galleryModal.classList.add('hidden');
+                loadGallery();
+                alert('Galeria atualizada!');
+            } else {
+                const err = await res.json();
+                throw new Error(err.error || 'Falha ao salvar');
+            }
+        } catch (err) {
+            alert('Erro: ' + err.message);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Salvar na Galeria';
+        }
+    });
+
+    // Gallery Image Preview
+    document.getElementById('gallery-item-file').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (re) => {
+                document.getElementById('gallery-image-preview').innerHTML = `<img src="${re.target.result}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.getElementById('gallery-item-url').addEventListener('input', (e) => {
+        const url = e.target.value.trim();
+        if (url) {
+            document.getElementById('gallery-image-preview').innerHTML = `<img src="${url}" style="width: 100%; height: 100%; object-fit: cover;">`;
+        }
+    });
+
+    window.deleteGalleryItem = async (id) => {
+        if (!confirm('Tem certeza que deseja remover este item da galeria?')) return;
+        try {
+            const res = await fetch(`${API_URL}/gallery/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${currentToken}` }
             });
-            if (res.ok) {
-                loadGallery();
-            } else {
-                alert('Erro ao remover imagem');
-            }
-        } catch (err) {
-            alert('Erro ao conectar com o servidor');
-        }
-    };
-
-    // Gallery Upload Logic
-    document.getElementById('add-gallery-photo-btn').addEventListener('click', () => {
-        document.getElementById('gallery-file-input').click();
-    });
-
-    document.getElementById('gallery-file-input').addEventListener('change', async (e) => {
-        if (!e.target.files.length) return;
-
-        const file = e.target.files[0];
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const btn = document.getElementById('add-gallery-photo-btn');
-        const originalText = btn.textContent;
-        btn.disabled = true;
-        btn.textContent = 'Enviando...';
-
-        try {
-            const res = await fetch(`${API_URL}/gallery/upload`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${currentToken}` },
-                body: formData
-            });
-
-            if (res.ok) {
-                loadGallery();
-                alert('Foto adicionada com sucesso!');
-            } else {
-                alert('Erro ao subir foto');
-            }
+            if (res.ok) loadGallery();
+            else alert('Erro ao remover item');
         } catch (err) {
             alert('Erro de conexão');
-        } finally {
-            btn.disabled = false;
-            btn.textContent = originalText;
-            e.target.value = '';
         }
-    });
+    };
 
     // --- View Toggles & Filters ---
     const btnListView = document.getElementById('btn-list-view');

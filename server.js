@@ -678,19 +678,48 @@ app.post('/api/gallery/upload', authenticateToken, (req, res) => {
     });
 });
 
-// Delete local image
-app.delete('/api/gallery/:filename', authenticateToken, (req, res) => {
-    const fileName = req.params.filename;
-    const filePath = path.join(__dirname, 'img', fileName);
+// --- Gallery Records (Supabase) ---
 
-    if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ error: 'Arquivo não encontrado' });
+// List all gallery items
+app.get('/api/gallery', async (req, res) => {
+    try {
+        const { data, error } = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
+});
 
-    fs.unlink(filePath, (err) => {
-        if (err) return res.status(500).json({ error: 'Erro ao remover arquivo' });
-        res.json({ success: true, message: 'Imagem removida' });
-    });
+// Create gallery item
+app.post('/api/gallery', authenticateToken, async (req, res) => {
+    const { image_url, title, alt_text } = req.body;
+    if (!image_url) return res.status(400).json({ error: 'URL da imagem é obrigatória' });
+
+    try {
+        const { data, error } = await supabase
+            .from('gallery')
+            .insert([{ image_url, title, alt_text: alt_text || title }])
+            .select()
+            .single();
+        if (error) throw error;
+        logAudit(req.user.id, 'GALLERY_ITEM_CREATE', `Nova imagem: ${title || image_url}`, req);
+        res.json({ success: true, item: data });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Delete gallery item
+app.delete('/api/gallery/:id', authenticateToken, async (req, res) => {
+    try {
+        const { error } = await supabase.from('gallery').delete().eq('id', req.params.id);
+        if (error) throw error;
+        logAudit(req.user.id, 'GALLERY_ITEM_DELETE', `Removeu item galeria ID: ${req.params.id}`, req);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // App Settings / One-time seed for default admin

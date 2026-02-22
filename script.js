@@ -104,21 +104,40 @@ if (window.__tataNailInit) {
             });
         }
 
-        function loadServices() {
-            if (servicesLoaded) return;
-            servicesLoaded = true;
-            if (!container) return;
+        // ── GALLERY ──
+        const galleryContainer = document.getElementById('gallery-container');
 
-            fetch('/api/services')
+        function renderGallery(items) {
+            if (!galleryContainer) return;
+            galleryContainer.innerHTML = '';
+
+            if (!Array.isArray(items) || items.length === 0) {
+                // Fallback to empty or placeholder if preferred
+                galleryContainer.innerHTML = '<p class="loading-msg">Nenhuma foto disponível na galeria.</p>';
+                return;
+            }
+
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'gallery-item';
+                div.innerHTML = `<img src="${item.image_url}" alt="${item.alt_text || item.title || 'Unhas trabalhadas'}">`;
+                galleryContainer.appendChild(div);
+            });
+        }
+
+        function loadGallery() {
+            if (!galleryContainer) return;
+            fetch('/api/gallery')
                 .then(r => r.json())
-                .then(list => renderList(list))
+                .then(data => renderGallery(data))
                 .catch(err => {
-                    console.error('API fail, using fallback:', err);
-                    renderList(defaultServices);
+                    console.error('Gallery API fail:', err);
+                    galleryContainer.innerHTML = '<p class="loading-msg">Erro ao carregar galeria.</p>';
                 });
         }
 
-        loadServices();   // called exactly once
+        loadServices();
+        loadGallery();
 
         // ── BOOKING ──
         const bookingForm = document.getElementById('booking-form');
